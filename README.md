@@ -25,7 +25,7 @@
 ## Project Overview
 This is a simple web application that makes the management of users easier. It enables a new user to register for an account and authenticates and authorizes registered users. It is built with flask and deployed to AWS Beanstalk.
 
-## Working
+## Working 
 
 It's pretty easy to use the application. On the home page (http://localhost:5000/apidocs):
 
