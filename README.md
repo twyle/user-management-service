@@ -146,3 +146,144 @@ Here is how to set up the application locally:
   10. View the running application
 
       Head over to http://0.0.0.0:5000/apidocs 
+
+## Development
+
+ #### 1. Application Design
+
+  1. **Services**
+
+      The application consists of one service and a lambda function for uploading images to S3:
+
+      1. User Management Service 
+
+      ![](assets/images/user_management_service.png)
+        
+        This service is resposible for the registration of new users, as well as the authentication and authorization of registered users. The routes include:
+
+        | Route                   | Method  | Description                 |
+        | ------------------------| ------- |---------------------------- |
+        | 'api/v0/auth/register'  | POST    | Register a new user.        |
+        | 'api/v0/auth/login'     | POST    | Login as a registered user. |
+        | 'api/v0/auth/logout'    | POST    | Logout as a logged in user. |
+        | 'api/v0/auth/confirm'   | GET     | Confirm email address.      |
+        | 'api/v0/auth/refresh'   | GET     | Get a new access token.     |
+        | 'api/v0/user'           | DELETE  | Delete a user.              |
+        | 'api/v0/user'           | PUT     | Update user info.           |
+        | 'api/v0/user'           | GET     | Get a user's info.          |
+        | 'api/v0/users'          | GET     | List all users.             |
+
+        1. Register as a new user with a unique email address and password as well as name.(Generates a uniques token) 
+        2. Proceed to your email address and click on the link given within 24 hours to activate your account. (marks account as activated)
+        3. Log into your account using your email and password. (You get a unique token for authorization)
+
+        This service uses the Postgres Database to store the user info. It uses an SQS queue to schedule the sending of account activation emails, handled by the emailer Lambda function. It also writes logs to the sqs queue to be processed by the logging lambda function.
+
+      The lambda function:
+
+      1. Image Processor (image)
+
+      ![](assets/images/image_processor.png)
+
+        This Lambda function takes in an image from the sqs queue, processes it and stores it in an S3 bucket. It then provedes the url of the stored image to the blog service.
+
+  2. **Database**
+
+      The application uses Postgres and AWS S3. The postgres database is used to store user details. The AWS S3 bucket is used to store the profile pictures.
+
+  3. **Security**
+
+      The application uses JSON Web Tokens to authorize access to protected routes. The passwords are also encrypted.
+
+ #### 2. Project Management
+
+   1. **Coding standards** </br>
+
+      The application had to adhere to the following coding standards:
+      1. Variable names
+      2. Function names
+      3. Test driven development
+      4. Individual modules need 60% coverage and an overall coverage of 60%.
+      5. CI/CD pipeline has to pass before deployments.
+      6. Commit messages format has to be adhered to.
+      7. Only push code to github using development branches.
+      8. Releases have to be tagged.
+      9. Use pre-commit to run code quality checks
+      10. Use comitizen to format commit messages
+
+   2. **Application development process management** </br>
+
+      The project uses GitHub Projects for management.
+
+ #### 3. Development Workflow
+
+ The application uses atleast 5 branches:
+
+  1. Features branch used to develop new features.
+  2. Development branch used to hold the most upto date features that are yet to be deployed.
+  3. Staging branch holds the code that is currently being tested for production.
+  4. The release branch holds all the assets used when creating a release.
+  5. The production branch holds the code for the currently deployed application.
+
+The development workflow follows the following steps:
+
+  1. A feature branch is created for the development of a new feature.
+  2. The code is then pushed to GitHub, triggering the feature-development-workflow.yml workflow. If all the tests pass, the feature is reviewde and merged into the development branch.
+  3. The code in the development branch is then deployed to the development environment. If the deployment is succesful, the development branch is merged into the staging branch.
+  4. This triggers the staging workflow. If all the tests are succesful, this branch is reviewed and deployed to a staging environment.
+  5. For creatinga release, the staging branch is merged into the release branch. This happens when a tag is pushed to GitHub.
+  6. Once a release is created, the release branch is merged into the production branch, which is deployed into production.
+
+The workflows require a couple of secrets to work:
+
+      ```sh
+        FLASK_APP=manage.py
+        FLASK_ENV=development
+
+        SECRET_KEY=supersecretkey
+
+        POSTGRES_HOST=<YOUR-IP-ADDRESS>
+        POSTGRES_DB=lyle
+        POSTGRES_PORT=5432
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=lyle
+
+      ```
+
+The workflows also require the followingenvironments to work:
+
+  1. Test
+  2. Staging
+  3. Development
+  4. Production
+
+And within each environment, create a secret that indicates the environment type i.e
+
+  1. Test -> ```FLASK_ENV=test```
+  2. Staging -> ```FLASK_ENV=stage```
+  3. Development -> ```FLASK_ENV=development```
+  4. Production -> ```FLASK_ENV=production```
+
+  ## Contribution
+
+1. Fork it https://github.com/twyle/repo-template/fork
+2. Create your feature branch (`git checkout -b feature/fooBar`)
+3. Commit your changes (`git commit -am 'Add some fooBar'`)
+4. Push to the branch (`git push origin feature/fooBar`)
+5. Create a new Pull Request
+
+## Developer
+
+Lyle Okoth – [@lylethedesigner](https://twitter.com/lylethedesigner) on twitter </br>
+
+[lyle okoth](https://medium.com/@lyle-okoth) on medium </br>
+
+My email is lyceokoth@gmail.com </br>
+
+Here is my [GitHub Profile](https://github.com/twyle/)
+
+You can also find me on [LinkedIN](https://www.linkedin.com/in/lyle-okoth/)
+
+## License
+
+Distributed under the MIT license. See ``LICENSE`` for more information.
