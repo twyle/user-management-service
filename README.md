@@ -1,6 +1,6 @@
 # user-management-service
 
-> A Flask service for managing user registration, authentication and authorization.
+> A Flask service for managing user registration, authentication and authorization.  
 
 <p align="center">
   <img title="Bandit badge" alt="Bandit badge" src="https://github.com/twyle/user-management-service/actions/workflows/feature-development-workflow.yml/badge.svg" />
@@ -25,7 +25,7 @@
 ## Project Overview
 This is a simple web application that makes the management of users easier. It enables a new user to register for an account and authenticates and authorizes registered users. It is built with flask and deployed to AWS Beanstalk.
 
-## Working
+## Working 
 
 It's pretty easy to use the application. On the home page (http://localhost:5000/apidocs):
 
