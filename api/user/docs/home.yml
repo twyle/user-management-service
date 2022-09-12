@@ -1,0 +1,16 @@
+description: Home Page
+tags:
+  - name: Home
+
+get:
+  description: None 
+
+responses:
+  '200':
+    description: When the user successfully loads the home page.
+
+  '400':
+    description: Bad Request
+
+  '500':
+    description: Internal Server Error

@@ -1,0 +1,39 @@
+description: User Registration
+tags:
+  - Authentication
+produces:
+  - "application/json"
+security:
+  - APIKeyHeader: [ 'Authorization' ]
+parameters:
+  - name: body
+    description: The body should contain the User Registration data
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "email"
+        - "password"
+        - "name"
+        - "profile-pic"
+      properties:
+        email:
+          type: "email"
+          example: "lyle@gmail.com"
+        name:
+          type: "username"
+          example: "lyle"
+        password:
+          type: "string"
+          format: password
+          example: "********"
+responses:
+  201:
+    description: When a user succesfully registers.
+
+  400:
+    description: Fails to Register due to bad request data
+
+  409:
+    description: Fails to Register since user with given details exists.

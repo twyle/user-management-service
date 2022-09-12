@@ -1,0 +1,41 @@
+description: Update a user's data
+tags:
+  - User
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+security:
+  - APIKeyHeader: [ 'Authorization' ]
+parameters:
+  - name: body
+    description: The body should contain the user data
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "email"
+        - "password"
+        - "name"
+        - "profile-pic"
+      properties:
+        email:
+          type: "email"
+          example: "lyle@gmail.com"
+        name:
+          type: "username"
+          example: "lyle"
+        password:
+          type: "string"
+          format: password
+          example: "********"
+responses:
+  200:
+    description: When a user is successfully updated
+
+  400:
+    description: Fails to update user due to bad request data
+
+  401:
+    description: Fails to update user due to missing authorization headers.

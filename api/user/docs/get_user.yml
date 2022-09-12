@@ -1,0 +1,24 @@
+description: Get a user with a given id
+tags:
+  - User
+produces:
+  - "application/json"
+security:
+  - APIKeyHeader: [ 'Authorization' ]
+parameters:
+  - in: query
+    description: The query should contain the user id
+    required: true
+    name: 'id'
+    type: 'string'
+responses:
+  200:
+    description: When a user is successfully obtained.
+
+  400:
+    description: Fails to Register due to bad request data
+
+  401:
+    description: Fails to register due to missing authorization headers.
+  422:
+    description: Fails to register due to missing segments in authorization header.

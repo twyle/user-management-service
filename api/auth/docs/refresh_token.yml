@@ -1,0 +1,14 @@
+description: Get a refresh token
+tags:
+  - Authentication
+produces:
+  - "application/json"
+security:
+  - APIKeyHeader: [ 'Authorization' ]
+get:
+  description: Get a refresh token.
+responses:
+  200:
+    description: When the user gets a new access token.
+  401:
+    description: When the access token is not included in the request.

@@ -1,0 +1,13 @@
+description: Get all the users
+tags:
+  - User
+produces:
+  - "application/json"
+get:
+  description: Get all the users.
+responses:
+  200:
+    description: When all users are successfully obtained.
+
+  400:
+    description: Fails to Register due to bad request data
