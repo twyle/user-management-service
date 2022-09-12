@@ -1,6 +1,7 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from ..user.models import User, user_schema, users_schema, profile_schema, auth_schema
 from flasgger import swag_from
+from .helpers import handle_create_user
 
 
 auth = Blueprint('auth', __name__)
@@ -9,7 +10,8 @@ auth = Blueprint('auth', __name__)
 @auth.route('/register', methods=['POST'])
 @swag_from("./docs/register_user.yml", endpoint='auth.register', methods=['POST'])
 def register():
-    return jsonify({'Hello': 'From the register route!'}), 200
+    """Create a new User."""
+    return handle_create_user(request.json)
 
 
 @auth.route('/login', methods=['POST'])
