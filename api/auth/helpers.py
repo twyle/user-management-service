@@ -5,7 +5,7 @@ import re
 from flask import jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token
 from flask import current_app
-from ..user.models import User, auth_schema
+from ..user.models import User, user_schema
 from ..extensions import db
 from ..exceptions import (
     EmptyUserData,
@@ -24,7 +24,7 @@ from ..exceptions import (
     PasswordTooShort,
     MissingPasswordData,
     UserNameTooShort,
-    UserNameTooLong
+    UserNameTooLong,
 )
 
 
@@ -151,7 +151,7 @@ def create_new_user(user_data: dict) -> dict:  # pylint: disable=R0912
     db.session.add(user)
     db.session.commit()
 
-    return auth_schema.dumps(user)
+    return user_schema.dumps(user)
 
 
 def handle_create_user(request_data: dict):

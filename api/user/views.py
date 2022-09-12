@@ -1,5 +1,5 @@
-from flask import Blueprint, jsonify
-from .models import User, user_schema, users_schema, profile_schema, auth_schema
+from flask import Blueprint, jsonify, request
+from .helpers import handle_delete_user, handle_get_all_users
 from flasgger import swag_from
 
 
@@ -18,17 +18,16 @@ def update_user():
     return jsonify({'Hello': 'From the update user route'}), 200
 
 
-@user.route('/', methods=['POST'])
-@swag_from("./docs/delete_user.yml", endpoint='user.delete_user', methods=['POST'])
+@user.route('/', methods=['DELETE'])
+@swag_from("./docs/delete_user.yml", endpoint='user.delete_user', methods=['DELETE'])
 def delete_user():
-    return jsonify({'Hello': 'From the delete user route'}), 200
+    """Delete a user."""
+    return handle_delete_user(request.args.get('id'))
 
 
 @user.route('/users', methods=['GET'])
 @swag_from("./docs/get_all_users.yml", endpoint='user.get_all_users', methods=['GET'])
 def get_all_users():
-    # all_users = Article.query.all()
-    # serialized_articles = articles_schema.dump(all_articles)
-    # return jsonify(serialized_articles), 200
-    return jsonify({'Hello': 'From the get all users route'}), 200
+    """List all the registered users."""
+    return handle_get_all_users()
 

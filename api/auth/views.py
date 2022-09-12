@@ -1,5 +1,4 @@
 from flask import Blueprint, jsonify, request
-from ..user.models import User, user_schema, users_schema, profile_schema, auth_schema
 from flasgger import swag_from
 from .helpers import handle_create_user
 
