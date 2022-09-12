@@ -61,3 +61,33 @@ def handle_get_all_users():
     """List all users."""
     all_users = User.query.all()
     return users_schema.dump(all_users), 200
+
+
+def get_user(user_id: int) -> dict:
+    """Get the user with the given id."""
+    if not user_id:
+        raise EmptyUserData('The user_id has to be provided.')
+
+    if not isinstance(user_id, int):
+        raise ValueError('The user_id has to be an integer.')
+
+    if not check_if_user_with_id_exists(user_id):
+        raise UserDoesNotExist(f'The user with id {user_id} does not exist.')
+
+    user = User.query.filter_by(id=user_id).first()
+
+    return user.get_user()
+
+
+def handle_get_user(user_id: str):
+    """Handle the GET request to the /api/v1/user route."""
+    try:
+        user = get_user(int(user_id))
+    except (
+        ValueError,
+        EmptyUserData,
+        UserDoesNotExist
+    ) as e:
+        return jsonify({'error': str(e)}), 400
+    else:
+        return user, 200

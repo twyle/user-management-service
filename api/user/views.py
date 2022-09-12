@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from .helpers import handle_delete_user, handle_get_all_users
+from .helpers import handle_delete_user, handle_get_all_users, handle_get_user
 from flasgger import swag_from
 
 
@@ -9,7 +9,7 @@ user = Blueprint('user', __name__)
 @user.route('/', methods=['GET'])
 @swag_from("./docs/get_user.yml", endpoint='user.get_user', methods=['GET'])
 def get_user():
-    return jsonify({'Hello': 'From the get user route'}), 200
+    return handle_get_user(request.args.get('id'))
 
 
 @user.route('/', methods=['PUT'])

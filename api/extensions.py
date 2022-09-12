@@ -4,12 +4,14 @@ from flask_migrate import Migrate
 from flask_marshmallow import Marshmallow
 from flasgger import LazyString, Swagger
 from flask import request
+from flask_jwt_extended import JWTManager
 
 
 cors = CORS()
 db = SQLAlchemy()
 migrate = Migrate()
 ma = Marshmallow()
+jwt = JWTManager()
 
 
 swagger_template = {

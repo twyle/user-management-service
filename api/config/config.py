@@ -2,6 +2,7 @@
 """This module contain the confuguration for the application."""
 import os
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
@@ -32,6 +33,10 @@ class BaseConfig():
 
     PASSWORD_MAX_LENGTH = int(os.getenv('PASSWORD_MAX_LENGTH', '20'))
     PASSWORD_MIN_LENGTH = int(os.getenv('PASSWORD_MIN_LENGTH', '3'))
+    
+    JWT_SECRET_KEY = 'super-secret-key'
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 24)))
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 7)))
 
 
 class DevelopmentConfig(BaseConfig):

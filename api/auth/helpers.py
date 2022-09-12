@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """This module has methods that are used in the other modules in this package."""
 import re
-
+import json
 from flask import jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token
 from flask import current_app
@@ -150,14 +150,21 @@ def create_new_user(user_data: dict) -> dict:  # pylint: disable=R0912
 
     db.session.add(user)
     db.session.commit()
+    
+    registration_token = create_access_token(user.id)
 
-    return user_schema.dumps(user)
+    registered_user_data = {
+        'user': json.loads(user_schema.dumps(user)),
+        'registration token': registration_token
+    }
+
+    return registered_user_data
 
 
 def handle_create_user(request_data: dict):
     """Handle the POST request to the /api/v1/user route."""
     try:
-        new_user = create_new_user(request_data)
+        registered_user_data = create_new_user(request_data)
     except (
         EmptyUserData,
         NonDictionaryUserData,
@@ -177,4 +184,4 @@ def handle_create_user(request_data: dict):
     ) as e:
         return jsonify({'error': str(e)}), 400
     else:
-        return new_user, 201
+        return registered_user_data, 201
