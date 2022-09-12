@@ -1,3 +1,4 @@
+from email.policy import default
 from ..extensions import db, ma
 from datetime import datetime
 from dataclasses import dataclass
@@ -15,12 +16,12 @@ class User(db.Model):
     name: str = db.Column(db.String(100), nullable=False)
     email: str = db.Column(db.Text, nullable=False)
     date_registered = db.Column(db.DateTime(), default=datetime.utcnow)
-    active: bool = db.Column(db.String(100), nullable=False)
-    admin: bool = db.Column(db.String(100), nullable=False)
+    active: bool = db.Column(db.Boolean(), nullable=False, default=False)
+    admin: bool = db.Column(db.Boolean(), nullable=False, default=False)
     password: str = db.Column(db.String(100), nullable=False)
-    profile_pic: str = db.Column(db.String(100), nullable=False)
+    profile_pic: str = db.Column(db.String(100), nullable=True)
 
-    def __init__(self, name: str, email: str, date_registered, active, admin, password: str, profile_pic: str) -> None:
+    def __init__(self, name: str, email: str, password: str) -> None:
         """Create a new user.
         
         Creates a new user in the user table with an increasing id, with active
@@ -33,11 +34,7 @@ class User(db.Model):
         """
         self.name = name
         self.email = email 
-        self.date_registered = date_registered
-        self.active = active
-        self.admin = admin
         self.password = password
-        self.profile_pic = profile_pic
 
 
 class UserSchema(ma.Schema):
