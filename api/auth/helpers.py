@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 """This module has methods that are used in the other modules in this package."""
 import re
+import requests
 import json
 from flask import jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token
 from flask import current_app
-from ..user.models import User, user_schema
+from ..user.models import User, user_schema, profile_schema
 from ..extensions import db
 from ..exceptions import (
     EmptyUserData,
@@ -25,6 +26,9 @@ from ..exceptions import (
     MissingPasswordData,
     UserNameTooShort,
     UserNameTooLong,
+    UserDoesNotExist,
+    InvalidPassword,
+    UnActivatedAccount
 )
 
 
@@ -102,6 +106,15 @@ def check_if_user_exists(user_email: str) -> bool:
     return False
 
 
+def send_verification_email(emai: str):
+    """Send the account verification email"""
+    data = {'email': emai}
+    url = current_app.config['EMAIL_SERVICE']
+    res = requests.post(url=url, json=data)
+    
+    return res
+
+
 def create_new_user(user_data: dict) -> dict:  # pylint: disable=R0912
     """Create a new user."""
     if not user_data:
@@ -151,14 +164,7 @@ def create_new_user(user_data: dict) -> dict:  # pylint: disable=R0912
     db.session.add(user)
     db.session.commit()
     
-    registration_token = create_access_token(user.id)
-
-    registered_user_data = {
-        'user': json.loads(user_schema.dumps(user)),
-        'registration token': registration_token
-    }
-
-    return registered_user_data
+    return user_schema.dumps(user)
 
 
 def handle_create_user(request_data: dict):
@@ -185,3 +191,84 @@ def handle_create_user(request_data: dict):
         return jsonify({'error': str(e)}), 400
     else:
         return registered_user_data, 201
+    
+    
+def check_user_password(user_password: str, user: User) -> bool:
+    """Check if user passwords match."""
+    if user_password == user.password:
+        return True
+    return False
+
+
+def create_activation_data(user: User) -> dict:
+    """Create the data needed for the activation email."""
+    registration_token = create_access_token(user.email)
+    
+    registered_user_data = {
+        'user': json.loads(user_schema.dumps(user)),
+        'registration token': registration_token
+    }
+
+    return registered_user_data
+
+    
+def log_in_user(user_data):
+    """Log in a registered user."""
+    if not user_data:
+        raise EmptyUserData('The user data cannot be empty.')
+
+    if not isinstance(user_data, dict):
+        raise NonDictionaryUserData('user_data must be a dict')
+
+    if 'email' not in user_data.keys():
+        raise MissingEmailKey('The email is missing from the admin data')
+
+    if not user_data['email']:
+        raise MissingEmailData('The email data is missing')
+
+    if 'password' not in user_data.keys():
+        raise MissingPasswordKey('The password is missing from the admin data')
+
+    if not user_data['password']:
+        raise MissingPasswordData('The password data is missing')
+
+    if check_if_user_exists(user_data['email']):
+        user = User.query.filter_by(email=user_data['email']).first()
+        if user:
+            if check_user_password(user_data['password'], user):
+                if user.active:
+                    user_data = {
+                        'user profile': json.loads(profile_schema.dumps(user)),
+                        'access token': create_access_token(user.id),
+                        'refresh token': create_refresh_token(user.id)
+                    }
+
+                    return user_data
+                
+                create_activation_data(user)
+                
+            raise InvalidPassword('The admin password is invalid!')
+    raise UserDoesNotExist('That Admin does not exist!')
+
+
+def handle_log_in_user(user_data: dict) -> dict:
+    """Handle a POST request to log in an admin."""
+    try:
+        data = log_in_user(user_data)
+    except (
+        EmptyUserData,
+        NonDictionaryUserData,
+        MissingEmailKey,
+        MissingEmailData,
+        MissingPasswordKey,
+        MissingPasswordData,
+        ValueError,
+    ) as e:
+        return jsonify({'error': str(e)}), 400
+    else:
+        return data, 200
+    
+
+def handle_account_confirmation(activation_token: str):
+    """Activate account."""
+    pass

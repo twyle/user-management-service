@@ -1,0 +1,21 @@
+description: Confirm the email address
+tags:
+  - Email
+produces:
+  - "application/json"
+security:
+  - APIKeyHeader: [ 'Authorization' ]
+parameters:
+  - in: query
+    description: The query should contain the email confirm token
+    required: true
+    name: 'token'
+    type: 'string'
+    example: "Imx5Y2Vva290aEBnbWFpbC5jb20i.YyBmdg.rs254oxjz2QKq886wc5FXMnKVIM"
+responses:
+  200:
+    description: When the email is successfully confirmed.
+
+  400:
+    description: Fails to confirm email due to bad request data
+

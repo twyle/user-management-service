@@ -7,6 +7,22 @@ from ..exceptions import (
 )
 
 
+def check_if_user_exists(user_email: str) -> bool:
+    """Check if the admin with the given user_email exists."""
+    if not user_email:
+        raise ValueError('The user_email has to be provided.')
+
+    if not isinstance(user_email, str):
+        raise ValueError('The user_email has to be an integer')
+
+    user = User.query.filter_by(email=user_email).first()
+
+    if user:
+        return True
+
+    return False
+
+
 def check_if_user_with_id_exists(user_id: int) -> bool:
     """Check if the user with the given user_id exists."""
     if not user_id:
@@ -76,7 +92,7 @@ def get_user(user_id: int) -> dict:
 
     user = User.query.filter_by(id=user_id).first()
 
-    return user.get_user()
+    return user_schema.dumps(user)
 
 
 def handle_get_user(user_id: str):

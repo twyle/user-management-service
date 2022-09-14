@@ -1,0 +1,29 @@
+description: Send a confirmation email
+tags:
+  - Email
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+security:
+  - APIKeyHeader: [ 'Authorization' ]
+parameters:
+  - name: body
+    description: The body should contain the user email
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "email"
+      properties:
+        email:
+          type: "email"
+          example: "lyle@gmail.com"
+responses:
+  200:
+    description: When the confirmation email is successffuly sent
+
+  400:
+    description: Fails to update user due to bad request data
+

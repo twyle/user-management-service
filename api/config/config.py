@@ -37,6 +37,13 @@ class BaseConfig():
     JWT_SECRET_KEY = 'super-secret-key'
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=int(os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 24)))
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=int(os.getenv('JWT_REFRESH_TOKEN_EXPIRES', 7)))
+    
+    MAIL_USERNAME=os.environ['MAIL_USERNAME']
+    MAIL_PASSWORD=os.environ['MAIL_PASSWORD']
+    MAIL_SERVER=os.environ['MAIL_SERVER']
+    MAIL_PORT=os.environ['MAIL_PORT']
+    MAIL_USE_SSL=os.environ['MAIL_USE_SSL']
+    MAIL_DEFAULT_SENDER=os.environ['MAIL_DEFAULT_SENDER']
 
 
 class DevelopmentConfig(BaseConfig):

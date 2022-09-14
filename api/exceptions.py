@@ -76,3 +76,11 @@ class UserNameTooShort(Exception):
 
 class UserNameTooLong(Exception):
     """Raised when the username given is too long."""
+    
+
+class UnActivatedAccount(Exception):
+    """Raised when the user attempts to log into a unactivated account."""
+
+
+class InvalidEmailAddress(Exception):
+    """Raised when the email address is invalid."""

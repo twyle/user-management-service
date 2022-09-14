@@ -5,6 +5,9 @@ from flask_marshmallow import Marshmallow
 from flasgger import LazyString, Swagger
 from flask import request
 from flask_jwt_extended import JWTManager
+from flask_mail import Mail
+from itsdangerous import URLSafeTimedSerializer
+import os
 
 
 cors = CORS()
@@ -12,6 +15,8 @@ db = SQLAlchemy()
 migrate = Migrate()
 ma = Marshmallow()
 jwt = JWTManager()
+mail = Mail()
+url_serializer = URLSafeTimedSerializer(os.getenv('SECRET_KEY', 'secret-key'))
 
 
 swagger_template = {

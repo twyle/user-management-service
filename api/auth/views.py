@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flasgger import swag_from
-from .helpers import handle_create_user
+from .helpers import handle_create_user, handle_log_in_user, handle_account_confirmation
 
 
 auth = Blueprint('auth', __name__)
@@ -16,13 +16,7 @@ def register():
 @auth.route('/login', methods=['POST'])
 @swag_from("./docs/login_user.yml", endpoint='auth.login', methods=['POST'])
 def login():
-    return jsonify({'Hello': 'From the login route!'}), 200
-
-
-@auth.route('/confirm', methods=['GET'])
-@swag_from("./docs/confirm_user.yml", endpoint='auth.confirm', methods=['GET'])
-def confirm():
-    return jsonify({'Hello': 'From the confirm route!'}), 200
+    return handle_log_in_user(request.json)
 
 
 @auth.route('/logout', methods=['POST'])
