@@ -6,8 +6,13 @@ consumes:
 produces:
   - "application/json"
 security:
-  - APIKeyHeader: [ 'Authorization' ]
+  - APIKeyHeader: [ 'Authorization' ] 
 parameters:
+  - in: query
+    description: The query should contain the user id
+    required: true
+    name: 'id'
+    type: 'string'
   - name: body
     description: The body should contain the user data
     in: body

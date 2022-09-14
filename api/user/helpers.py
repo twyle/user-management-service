@@ -126,13 +126,15 @@ def check_if_user_with_name_exists(user_name: str) -> bool:
     return False
 
 
-def update_user(user_id: int, user_data: dict) -> dict:  # pylint: disable=R0912
+def update_user(user_id: str, user_data: dict) -> dict:  # pylint: disable=R0912
     """Update the user with the given id."""
     if not user_id:
         raise EmptyUserData('The user_id has to be provided.')
 
-    if not isinstance(user_id, int):
-        raise ValueError('The user_id has to be an integer.')
+    if not isinstance(user_id, str):
+        raise ValueError('The user_id has to be a string.')
+    
+    user_id = int(user_id)
 
     if not check_if_user_with_id_exists(user_id):
         raise UserDoesNotExist(f'The user with id {user_id} does not exist.')
@@ -170,7 +172,7 @@ def update_user(user_id: int, user_data: dict) -> dict:  # pylint: disable=R0912
     return user_schema.dumps(user)
 
 
-def handle_update_user(user_id: int, user_data: dict):
+def handle_update_user(user_id: str, user_data: dict):
     """Handle the GET request to the /api/v1/user route."""
     try:
         user = update_user(user_id, user_data)
