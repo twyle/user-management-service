@@ -34,7 +34,7 @@ It's pretty easy to use the application. On the home page (http://localhost:5000
  3. Access all the sites functionality.
 
  <p align=center>
-  <img src="assets/videos/user-management-service.gif" />
+  <img src="assets/videos/user-management-service-v2" />
 </p>
 
  ## Features
@@ -163,15 +163,16 @@ Here is how to set up the application locally:
 
         | Route                   | Method  | Description                 |
         | ------------------------| ------- |---------------------------- |
-        | 'api/v0/auth/register'  | POST    | Register a new user.        |
-        | 'api/v0/auth/login'     | POST    | Login as a registered user. |
-        | 'api/v0/auth/logout'    | POST    | Logout as a logged in user. |
-        | 'api/v0/auth/confirm'   | GET     | Confirm email address.      |
-        | 'api/v0/auth/refresh'   | GET     | Get a new access token.     |
-        | 'api/v0/user'           | DELETE  | Delete a user.              |
-        | 'api/v0/user'           | PUT     | Update user info.           |
-        | 'api/v0/user'           | GET     | Get a user's info.          |
-        | 'api/v0/users'          | GET     | List all users.             |
+        | 'api/v1/auth/register'  | POST    | Register a new user.        |
+        | 'api/v1/auth/login'     | POST    | Login as a registered user. |
+        | 'api/v1/auth/logout'    | POST    | Logout as a logged in user. |
+        | 'api/v1/auth/confirm'   | GET     | Confirm email address.      |
+        | 'api/v1/auth/send'      | POST    | Send activation email.      |
+        | 'api/v1/auth/refresh'   | GET     | Get a new access token.     |
+        | 'api/v1/user'           | DELETE  | Delete a user.              |
+        | 'api/v1/user'           | PUT     | Update user info.           |
+        | 'api/v1/user'           | GET     | Get a user's info.          |
+        | 'api/v1/users'          | GET     | List all users.             |
 
         1. Register as a new user with a unique email address and password as well as name.(Generates a uniques token) 
         2. Proceed to your email address and click on the link given within 24 hours to activate your account. (marks account as activated)
