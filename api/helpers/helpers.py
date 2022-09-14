@@ -1,6 +1,6 @@
 import os
-from .user.models import User
-from .extensions import db
+from ..user.models import User
+from ..extensions import db
 
 
 def set_flask_environment(app) -> str:

@@ -2,7 +2,7 @@ from flask import Flask, jsonify
 from .user.views import user
 from .auth.views import auth
 from .extensions import cors, db, migrate, ma, swagger, jwt, mail
-from .helpers import set_flask_environment
+from .helpers.helpers import set_flask_environment
 from flasgger import LazyJSONEncoder
 from .mail_blueprint.views import mail as mail_blueprint
 

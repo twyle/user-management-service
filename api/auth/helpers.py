@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 """This module has methods that are used in the other modules in this package."""
-import re
+from ..helpers.blueprint_helpers import (
+    is_email_address_format_valid,
+    check_if_user_exists,
+    is_user_name_valid,
+    is_user_password_valid
+) 
 import requests
 import json
 from flask import jsonify
@@ -8,10 +13,10 @@ from flask_jwt_extended import create_access_token, create_refresh_token
 from flask import current_app
 from ..user.models import User, user_schema, profile_schema
 from ..extensions import db
+from ..mail_blueprint.helpers import handle_send_confirm_email
 from ..exceptions import (
     EmptyUserData,
     NonDictionaryUserData,
-    NonStringData,
     MissingEmailKey,
     MissingNameKey,
     MissingPasswordKey,
@@ -22,7 +27,6 @@ from ..exceptions import (
     MissingNameData,
     PasswordNotAlphaNumeric,
     PasswordTooLong,
-    PasswordTooShort,
     MissingPasswordData,
     UserNameTooShort,
     UserNameTooLong,
@@ -30,80 +34,6 @@ from ..exceptions import (
     InvalidPassword,
     UnActivatedAccount
 )
-
-
-def is_email_address_format_valid(email_address: str) -> bool:
-    """Check that the email address format is valid."""
-    if not email_address:
-        raise ValueError('The email_address cannot be an empty value')
-
-    if not isinstance(email_address, str):
-        raise ValueError('The email_address must be a string')
-
-    #  Regular expression for validating an Email
-    regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-
-    if re.fullmatch(regex, email_address):
-        return True
-
-    return False
-
-
-def is_user_name_valid(user_name: str) -> bool:
-    """Check if the user name is valid."""
-    if not user_name:
-        raise ValueError('The user_name has to be provided.')
-
-    if not isinstance(user_name, str):
-        raise ValueError('The user_name has to be string')
-
-    if len(user_name) >= current_app.config['NAME_MAX_LENGTH']:
-        raise UserNameTooLong(f'The user_name has to be less than {current_app.config["NAME_MAX_LENGTH"]}')
-
-    if len(user_name) <= current_app.config["NAME_MIN_LENGTH"]:
-        raise UserNameTooShort(f'The user_name has to be more than {current_app.config["NAME_MIN_LENGTH"]}')
-
-    if not user_name.isalnum():
-        raise ValueError('The user_name has to be alphanumeric.')
-
-    return True
-
-
-def is_user_password_valid(user_password: str):
-    """Check if the user_password is valid."""
-    if not user_password:
-        raise MissingPasswordData('The user_password has to be provided.')
-
-    if not isinstance(user_password, str):
-        raise NonStringData('The user_password has to be string')
-
-    if len(user_password) >= current_app.config["PASSWORD_MAX_LENGTH"]:
-        raise PasswordTooLong(f'The user_password has to be less than {current_app.config["PASSWORD_MAX_LENGTH"]}')
-
-    if len(user_password) <= current_app.config["PASSWORD_MIN_LENGTH"]:
-        raise PasswordTooShort(f'The user_password has to be more than {current_app.config["PASSWORD_MIN_LENGTH"]}')
-
-    if user_password.isalnum():
-        msg = 'When checking if user_password is valid, he user_password was not alphanumeric.'
-        raise PasswordNotAlphaNumeric('The user_password has to be alphanumeric.')
-
-    return True
-
-
-def check_if_user_exists(user_email: str) -> bool:
-    """Check if the admin with the given user_email exists."""
-    if not user_email:
-        raise ValueError('The user_email has to be provided.')
-
-    if not isinstance(user_email, str):
-        raise ValueError('The user_email has to be an integer')
-
-    user = User.query.filter_by(email=user_email).first()
-
-    if user:
-        return True
-
-    return False
 
 
 def send_verification_email(emai: str):
@@ -199,20 +129,8 @@ def check_user_password(user_password: str, user: User) -> bool:
         return True
     return False
 
-
-def create_activation_data(user: User) -> dict:
-    """Create the data needed for the activation email."""
-    registration_token = create_access_token(user.email)
     
-    registered_user_data = {
-        'user': json.loads(user_schema.dumps(user)),
-        'registration token': registration_token
-    }
-
-    return registered_user_data
-
-    
-def log_in_user(user_data):
+def log_in_user(user_data: dict):
     """Log in a registered user."""
     if not user_data:
         raise EmptyUserData('The user data cannot be empty.')
@@ -244,11 +162,14 @@ def log_in_user(user_data):
                     }
 
                     return user_data
-                
-                create_activation_data(user)
-                
+                raise UnActivatedAccount('This account has not been activate.')
             raise InvalidPassword('The admin password is invalid!')
-    raise UserDoesNotExist('That Admin does not exist!')
+    raise UserDoesNotExist(f'The user with email {user_data["email"]} does not exist!')
+
+
+def handle_unactivated_account(email: str) -> dict:
+    """Sends activation email."""
+    return handle_send_confirm_email(email)
 
 
 def handle_log_in_user(user_data: dict) -> dict:
@@ -263,8 +184,11 @@ def handle_log_in_user(user_data: dict) -> dict:
         MissingPasswordKey,
         MissingPasswordData,
         ValueError,
+        UserDoesNotExist
     ) as e:
         return jsonify({'error': str(e)}), 400
+    except UnActivatedAccount:
+        return handle_unactivated_account(user_data['email'])
     else:
         return data, 200
     

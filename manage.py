@@ -2,7 +2,7 @@
 from api import create_app
 from flask.cli import FlaskGroup
 from dotenv import load_dotenv
-from api.helpers import seed_db_
+from api.helpers.helpers import seed_db_
 
 load_dotenv()
 

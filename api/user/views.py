@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from .helpers import handle_delete_user, handle_get_all_users, handle_get_user
+from .helpers import handle_delete_user, handle_get_all_users, handle_get_user, handle_update_user
 from flasgger import swag_from
 
 
@@ -15,7 +15,9 @@ def get_user():
 @user.route('/', methods=['PUT'])
 @swag_from("./docs/update_user.yml", endpoint='user.update_user', methods=['PUT'])
 def update_user():
-    return jsonify({'Hello': 'From the update user route'}), 200
+    data = request.json
+    user_id = int(request.args.get('id')) 
+    return handle_update_user(user_id, data)
 
 
 @user.route('/', methods=['DELETE'])

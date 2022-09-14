@@ -1,11 +1,10 @@
-from api.auth.helpers import check_if_user_exists
 from ..extensions import url_serializer, mail, db
 from flask_mail import Message
 from itsdangerous import SignatureExpired, BadTimeSignature
 from flask import jsonify, url_for
 from ..user.models import User
-from ..user.helpers import check_if_user_exists
 from ..exceptions import InvalidEmailAddress
+from ..helpers.blueprint_helpers import check_if_user_exists
 
 
 def activate_account(email: str):

@@ -16,7 +16,6 @@ parameters:
       type: object
       required:
         - "email"
-        - "password"
         - "name"
         - "profile-pic"
       properties:
@@ -26,10 +25,8 @@ parameters:
         name:
           type: "username"
           example: "lyle"
-        password:
+        profile_pic:
           type: "string"
-          format: password
-          example: "********"
 responses:
   200:
     description: When a user is successfully updated
