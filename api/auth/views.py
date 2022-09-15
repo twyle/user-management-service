@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flasgger import swag_from
-from .helpers import handle_create_user, handle_log_in_user, handle_account_confirmation
+from .helpers import handle_create_user, handle_log_in_user, handle_reset_password
 
 
 auth = Blueprint('auth', __name__)
@@ -22,10 +22,18 @@ def login():
 @auth.route('/logout', methods=['POST'])
 @swag_from("./docs/logout_user.yml", endpoint='auth.logout', methods=['POST'])
 def logout():
+    # nullify the access token
     return jsonify({'Hello': 'From the logout route!'}), 200
 
 
 @auth.route('/refresh', methods=['POST'])
 @swag_from("./docs/refresh_token.yml", endpoint='auth.refresh', methods=['POST'])
 def refresh():
+    #generate new access token
     return jsonify({'Hello': 'From the refresh-token route!'}), 200
+
+
+@auth.route('/password', methods=['POST'])
+@swag_from("./docs/password_reset.yml", endpoint='auth.reset_password', methods=['POST'])
+def reset_password():
+    return handle_reset_password(request.args.get('token'), request.json)

@@ -18,9 +18,6 @@ from ..exceptions import (
     MissingEmailData,
     MissingPasswordData,
     MissingNameData,
-    MissingEmailKey,
-    MissingNameKey,
-    MissingPasswordKey
 )
 
 
