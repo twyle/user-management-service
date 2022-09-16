@@ -76,10 +76,10 @@ def send_confirm_email(user_id: str, email_data: dict) -> dict:
     
     user = User.query.filter_by(id=int(user_id)).first()
     
-    if not check_if_email_id_match(email_data["email"], int(id)):
-        raise UserDoesNotExist(f'There is no user with the id {id} and email {email_data["email"]}')
+    if not check_if_email_id_match(email_data["email"], int(user_id)):
+        raise UserDoesNotExist(f'There is no user with the id {user_id} and email {email_data["email"]}')
     
-    if check_if_user_active(int(id)):
+    if check_if_user_active(int(user_id)):
         raise ActivatedAccount('This account has alreadybeen activated!')
     
     return help_send_confirm_email(email_data['email'])

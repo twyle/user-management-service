@@ -20,6 +20,7 @@ class User(db.Model):
     admin: bool = db.Column(db.Boolean(), nullable=False, default=False)
     password: str = db.Column(db.String(100), nullable=False)
     profile_pic: str = db.Column(db.String(100), nullable=True)
+    
 
     def __init__(self, name: str, email: str, password: str) -> None:
         """Create a new user.

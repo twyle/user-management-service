@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flasgger import swag_from
 from .helpers import handle_create_user, handle_log_in_user, handle_reset_password
+from flask_jwt_extended import jwt_required
 
 
 auth = Blueprint('auth', __name__)
@@ -20,6 +21,7 @@ def login():
 
 
 @auth.route('/logout', methods=['POST'])
+@jwt_required()
 @swag_from("./docs/logout_user.yml", endpoint='auth.logout', methods=['POST'])
 def logout():
     # nullify the access token

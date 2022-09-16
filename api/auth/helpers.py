@@ -37,7 +37,7 @@ from ..exceptions import (
     UnActivatedAccount,
     InvalidEmailAddress,
     EmptyImageFile,
-    IllegalFileType
+    IllegalFileType,
 )
 
 
@@ -186,7 +186,8 @@ def handle_log_in_user(user_data: dict) -> dict:
         MissingPasswordKey,
         MissingPasswordData,
         ValueError,
-        UserDoesNotExist
+        UserDoesNotExist,
+        InvalidPassword
     ) as e:
         return jsonify({'error': str(e)}), 400
     except UnActivatedAccount:

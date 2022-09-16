@@ -96,3 +96,4 @@ class EmptyImageFile(Exception):
 
 class IllegalFileType(Exception):
     """Raised when an illegal file type is uploaded."""
+    
