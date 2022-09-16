@@ -6,13 +6,14 @@ from ..helpers.blueprint_helpers import (
     is_user_name_valid,
     is_user_password_valid
 ) 
-import requests
+from os import path
+from werkzeug.utils import secure_filename
 import json
 from flask import jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token
 from flask import current_app
 from ..user.models import User, user_schema, profile_schema
-from ..extensions import db, url_serializer
+from ..extensions import db, url_serializer, s3
 from ..mail_blueprint.helpers import handle_send_confirm_email
 from itsdangerous import SignatureExpired, BadTimeSignature
 from ..exceptions import (
@@ -34,20 +35,80 @@ from ..exceptions import (
     UserDoesNotExist,
     InvalidPassword,
     UnActivatedAccount,
-    InvalidEmailAddress
+    InvalidEmailAddress,
+    EmptyImageFile,
+    IllegalFileType
 )
 
 
-def send_verification_email(emai: str):
-    """Send the account verification email"""
-    data = {'email': emai}
-    url = current_app.config['EMAIL_SERVICE']
-    res = requests.post(url=url, json=data)
+def upload_file_to_s3(file_path, bucket_name):
+    """
+    Docs: http://boto3.readthedocs.io/en/latest/guide/s3.html
+    """
+    with open(file_path, 'rb') as file:
+        try:
+            s3.upload_fileobj(
+                file,
+                bucket_name,
+                path.basename(file.name)
+            )
+        except Exception as e: 
+            raise e
+        else:
+            data = "{}{}".format(current_app.config["S3_LOCATION"], path.basename(file.name))
+            return data
+
+
+def allowed_file(filename: str) -> bool:
+    """Check if the file is allowed."""
+    allowed_extensions = current_app.config['ALLOWED_EXTENSIONS']
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
+
+def save_file(file):
+    """Saves the file locally"""
+    filename = secure_filename(file.filename)    
+    file.save(path.join(current_app.config['UPLOAD_FOLDER'], filename))
+    file_path = path.join(current_app.config['UPLOAD_FOLDER'], filename)
     
-    return res
+    return file_path
 
 
-def create_new_user(user_data: dict) -> dict:  # pylint: disable=R0912
+def upload_image(file):
+    """Uploads image to S3"""
+    if not file:
+        raise EmptyImageFile('The file has to be provided!')
+    if file.filename == '':
+        raise EmptyImageFile('The file has to be provided!')
+    if not allowed_file(file.filename):
+        raise IllegalFileType('That file type is not allowed!')
+    
+    file_path = save_file(file)
+    
+    profile_pic = upload_file_to_s3(file_path, current_app.config["S3_BUCKET"])
+    
+    return profile_pic
+
+
+def handle_upload_image(file):
+    """Handle image upload."""
+    try:
+        profile_pic = upload_image(file)
+        print(profile_pic)
+    except (
+        EmptyImageFile,
+        IllegalFileType,
+        ValueError,
+        TypeError
+    ) as e:
+        raise e
+    except Exception as e:
+        raise e
+    else:
+        return profile_pic
+
+
+def create_new_user(user_data: dict, profile_pic_data) -> dict:  # pylint: disable=R0912
     """Create a new user."""
     if not user_data:
         raise EmptyUserData('The user data cannot be empty.')
@@ -92,6 +153,10 @@ def create_new_user(user_data: dict) -> dict:  # pylint: disable=R0912
 
     user = User(email=user_data['Email'], name=user_data['User Name'],
                   password=user_data['Password'])
+    
+    if profile_pic_data['Profile Picture']:
+        profile_pic = handle_upload_image(profile_pic_data['Profile Picture'])
+        user.profile_pic = profile_pic
 
     db.session.add(user)
     db.session.commit()
@@ -99,10 +164,10 @@ def create_new_user(user_data: dict) -> dict:  # pylint: disable=R0912
     return user_schema.dumps(user)
 
 
-def handle_create_user(request_data: dict):
+def handle_create_user(request_data: dict, profile_pic):
     """Handle the POST request to the /api/v1/user route."""
     try:
-        registered_user_data = create_new_user(request_data)
+        registered_user_data = create_new_user(request_data, profile_pic)
     except (
         EmptyUserData,
         NonDictionaryUserData,
@@ -118,7 +183,9 @@ def handle_create_user(request_data: dict):
         PasswordTooLong,
         UserNameTooShort,
         UserNameTooLong,
-        MissingPasswordData
+        MissingPasswordData,
+        IllegalFileType,
+        EmptyImageFile
     ) as e:
         return jsonify({'error': str(e)}), 400
     else:

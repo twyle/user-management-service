@@ -2,15 +2,13 @@ description: User Registration
 tags:
   - Authentication
 produces:
-  - "application/json"
-security:
-  - APIKeyHeader: [ 'Authorization' ]
+  - "application/json"  
 parameters:
   - name: "User Name"
     description: "The user name"
     required: true
     in: "formData"
-    type: email
+    type: string
   - name: "Email"
     description: "The user email"
     required: true
@@ -18,7 +16,7 @@ parameters:
     type: string
   - name: "Password"
     description: "The user password"
-    required: true
+    required: false
     in: "formData"
     type: password
   - name: "Profile Picture"

@@ -8,6 +8,11 @@ from flask_jwt_extended import JWTManager
 from flask_mail import Mail
 from itsdangerous import URLSafeTimedSerializer
 import os
+import boto3
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 
 cors = CORS()
@@ -16,7 +21,14 @@ migrate = Migrate()
 ma = Marshmallow()
 jwt = JWTManager()
 mail = Mail()
+
 url_serializer = URLSafeTimedSerializer(os.getenv('SECRET_KEY', 'secret-key'))
+
+s3 = boto3.client(
+   "s3",
+   aws_access_key_id=os.environ['AWS_ACCESS_KEY'],
+   aws_secret_access_key=os.environ['AWS_ACCESS_SECRET']
+)
 
 
 swagger_template = {

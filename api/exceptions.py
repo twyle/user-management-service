@@ -84,3 +84,11 @@ class UnActivatedAccount(Exception):
 
 class InvalidEmailAddress(Exception):
     """Raised when the email address is invalid."""
+    
+
+class EmptyImageFile(Exception):
+    """Raised when no image file is given."""
+
+
+class IllegalFileType(Exception):
+    """Raised when an illegal file type is uploaded."""

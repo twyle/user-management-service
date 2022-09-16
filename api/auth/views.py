@@ -10,8 +10,7 @@ auth = Blueprint('auth', __name__)
 @swag_from("./docs/register_user.yml", endpoint='auth.register', methods=['POST'])
 def register():
     """Create a new User."""
-    print(request.form.keys())
-    return handle_create_user(request.form)
+    return handle_create_user(request.form, request.files)
 
 
 @auth.route('/login', methods=['POST'])
