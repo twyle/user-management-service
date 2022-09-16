@@ -4,7 +4,8 @@ from flask import jsonify, current_app
 from ..helpers.blueprint_helpers import (
     is_email_address_format_valid,
     check_if_user_exists,
-    is_user_name_valid
+    is_user_name_valid,
+    handle_upload_image
 )
 from ..exceptions import (
     EmptyUserData,
@@ -123,7 +124,7 @@ def check_if_user_with_name_exists(user_name: str) -> bool:
     return False
 
 
-def update_user(user_id: str, user_data: dict) -> dict:  # pylint: disable=R0912
+def update_user(user_id: str, user_data: dict, profile_pic_data) -> dict:  # pylint: disable=R0912
     """Update the user with the given id."""
     if not user_id:
         raise EmptyUserData('The user_id has to be provided.')
@@ -158,22 +159,29 @@ def update_user(user_id: str, user_data: dict) -> dict:  # pylint: disable=R0912
             raise UserExists(f'The email adress {user_data["Email"]} is already in use.')
 
     if 'User Name' in user_data.keys():
+        print('Got here')
         is_user_name_valid(user_data['User Name'])
+        print('Then here')
 
     user = User.query.filter_by(id=user_id).first()
     if 'Email' in user_data.keys():
         user.email = user_data['Email']
     if 'User Name' in user_data.keys():
         user.name = user_data['User Name']
+        
+    if profile_pic_data['Profile Picture']:
+        profile_pic = handle_upload_image(profile_pic_data['Profile Picture'])
+        user.profile_pic = profile_pic
+        
     db.session.commit()
 
     return user_schema.dumps(user) 
 
 
-def handle_update_user(user_id: str, user_data: dict):
+def handle_update_user(user_id: str, user_data: dict, profile_pic):
     """Handle the GET request to the /api/v1/user route."""
     try:
-        user = update_user(user_id, user_data)
+        user = update_user(user_id, user_data, profile_pic)
     except (
         UserExists,
         InvalidEmailAddressFormat,

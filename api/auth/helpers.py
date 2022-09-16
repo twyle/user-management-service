@@ -4,10 +4,10 @@ from ..helpers.blueprint_helpers import (
     is_email_address_format_valid,
     check_if_user_exists,
     is_user_name_valid,
-    is_user_password_valid
+    is_user_password_valid,
+    handle_upload_image
 ) 
 from os import path
-from werkzeug.utils import secure_filename
 import json
 from flask import jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token
@@ -39,73 +39,6 @@ from ..exceptions import (
     EmptyImageFile,
     IllegalFileType
 )
-
-
-def upload_file_to_s3(file_path, bucket_name):
-    """
-    Docs: http://boto3.readthedocs.io/en/latest/guide/s3.html
-    """
-    with open(file_path, 'rb') as file:
-        try:
-            s3.upload_fileobj(
-                file,
-                bucket_name,
-                path.basename(file.name)
-            )
-        except Exception as e: 
-            raise e
-        else:
-            data = "{}{}".format(current_app.config["S3_LOCATION"], path.basename(file.name))
-            return data
-
-
-def allowed_file(filename: str) -> bool:
-    """Check if the file is allowed."""
-    allowed_extensions = current_app.config['ALLOWED_EXTENSIONS']
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
-
-
-def save_file(file):
-    """Saves the file locally"""
-    filename = secure_filename(file.filename)    
-    file.save(path.join(current_app.config['UPLOAD_FOLDER'], filename))
-    file_path = path.join(current_app.config['UPLOAD_FOLDER'], filename)
-    
-    return file_path
-
-
-def upload_image(file):
-    """Uploads image to S3"""
-    if not file:
-        raise EmptyImageFile('The file has to be provided!')
-    if file.filename == '':
-        raise EmptyImageFile('The file has to be provided!')
-    if not allowed_file(file.filename):
-        raise IllegalFileType('That file type is not allowed!')
-    
-    file_path = save_file(file)
-    
-    profile_pic = upload_file_to_s3(file_path, current_app.config["S3_BUCKET"])
-    
-    return profile_pic
-
-
-def handle_upload_image(file):
-    """Handle image upload."""
-    try:
-        profile_pic = upload_image(file)
-        print(profile_pic)
-    except (
-        EmptyImageFile,
-        IllegalFileType,
-        ValueError,
-        TypeError
-    ) as e:
-        raise e
-    except Exception as e:
-        raise e
-    else:
-        return profile_pic
 
 
 def create_new_user(user_data: dict, profile_pic_data) -> dict:  # pylint: disable=R0912
