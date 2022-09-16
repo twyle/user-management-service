@@ -1,7 +1,12 @@
 from flask import Blueprint, jsonify, request
 from flasgger import swag_from
-from .helpers import handle_create_user, handle_log_in_user, handle_reset_password
-from flask_jwt_extended import jwt_required
+from .helpers import (
+    handle_create_user,
+    handle_log_in_user,
+    handle_reset_password,
+    handle_refresh_token
+)
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
 auth = Blueprint('auth', __name__)
@@ -29,10 +34,11 @@ def logout():
 
 
 @auth.route('/refresh_token', methods=['POST'])
+@jwt_required(refresh=True)
 @swag_from("./docs/refresh_token.yml", endpoint='auth.refresh', methods=['POST'])
 def refresh():
-    #generate new access token
-    return jsonify({'Hello': 'From the refresh-token route!'}), 200
+    """Generate a refresh token."""
+    return handle_refresh_token(get_jwt_identity())
 
 
 @auth.route('/reset_password', methods=['POST'])

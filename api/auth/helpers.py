@@ -10,7 +10,7 @@ from ..helpers.blueprint_helpers import (
 from os import path
 import json
 from flask import jsonify
-from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity
 from flask import current_app
 from ..user.models import User, user_schema, profile_schema
 from ..extensions import db, url_serializer, s3
@@ -251,3 +251,8 @@ def handle_reset_password(activation_token: str, user_passwrd: dict) -> dict:
         return jsonify({'error': str(e)})
     else:
         return reset
+    
+    
+def handle_refresh_token(identity) -> dict:
+    """Generate a new access token."""
+    return jsonify(access_token=create_access_token(identity=identity)), 200
