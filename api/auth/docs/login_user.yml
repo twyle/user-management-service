@@ -3,8 +3,6 @@ tags:
   - Authentication
 produces:
   - "application/json"
-security:
-  - APIKeyHeader: [ 'Authorization' ]
 parameters:
   - name: body
     description: The body should contain the User Login data

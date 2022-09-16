@@ -3,8 +3,6 @@ tags:
   - Email
 produces:
   - "application/json"
-security:
-  - APIKeyHeader: [ 'Authorization' ]
 parameters:
   - in: query
     description: The query should contain the email confirm token
