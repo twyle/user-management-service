@@ -10,7 +10,8 @@ auth = Blueprint('auth', __name__)
 @swag_from("./docs/register_user.yml", endpoint='auth.register', methods=['POST'])
 def register():
     """Create a new User."""
-    return handle_create_user(request.json)
+    print(request.form.keys())
+    return handle_create_user(request.form)
 
 
 @auth.route('/login', methods=['POST'])
@@ -26,14 +27,14 @@ def logout():
     return jsonify({'Hello': 'From the logout route!'}), 200
 
 
-@auth.route('/refresh', methods=['POST'])
+@auth.route('/refresh_token', methods=['POST'])
 @swag_from("./docs/refresh_token.yml", endpoint='auth.refresh', methods=['POST'])
 def refresh():
     #generate new access token
     return jsonify({'Hello': 'From the refresh-token route!'}), 200
 
 
-@auth.route('/password', methods=['POST'])
+@auth.route('/reset_password', methods=['POST'])
 @swag_from("./docs/password_reset.yml", endpoint='auth.reset_password', methods=['POST'])
 def reset_password():
     return handle_reset_password(request.args.get('token'), request.json)

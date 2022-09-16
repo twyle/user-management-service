@@ -55,43 +55,43 @@ def create_new_user(user_data: dict) -> dict:  # pylint: disable=R0912
     if not isinstance(user_data, dict):
         raise NonDictionaryUserData('user_data must be a dict')
 
-    if 'email' not in user_data.keys():
+    if 'Email' not in user_data.keys():
         raise MissingEmailKey('The email is missing from the user data')
 
-    if not user_data['email']:
+    if not user_data['Email']:
         raise MissingEmailData('The email data is missing')
 
-    if len(user_data['email']) >= current_app.config['EMAIL_MAX_LENGTH']:
+    if len(user_data['Email']) >= current_app.config['EMAIL_MAX_LENGTH']:
         raise EmailAddressTooLong(f'The email address should be less than {current_app.config["EMAIL_MAX_LENGTH"]} characters!')
 
-    if not is_email_address_format_valid(user_data['email']):
+    if not is_email_address_format_valid(user_data['Email']):
         raise InvalidEmailAddressFormat('The email address is invalid')
 
-    if 'name' not in user_data.keys():
+    if 'User Name' not in user_data.keys():
         raise MissingNameKey('The name is missing from the user data')
 
-    if not user_data['name']:
+    if not user_data['User Name']:
         raise MissingNameData('The name data is missing')
 
-    if 'password' not in user_data.keys():
+    if 'Password' not in user_data.keys():
         raise MissingPasswordKey('The password is missing from the user data')
 
-    if not user_data['password']:
+    if not user_data['Password']:
         raise MissingPasswordData('The password data is missing')
 
-    is_user_name_valid(user_data['name'])
+    is_user_name_valid(user_data['User Name'])
 
     try:
-        is_user_password_valid(user_data['password'])
+        is_user_password_valid(user_data['Password'])
     except ValueError as e:
         raise e
 
-    if check_if_user_exists(user_data['email']):
-        raise UserExists(f'The email adress {user_data["email"]} is already in use.')
+    if check_if_user_exists(user_data['Email']):
+        raise UserExists(f'The email adress {user_data["Email"]} is already in use.')
     
 
-    user = User(email=user_data['email'], name=user_data['name'],
-                  password=user_data['password'])
+    user = User(email=user_data['Email'], name=user_data['User Name'],
+                  password=user_data['Password'])
 
     db.session.add(user)
     db.session.commit()

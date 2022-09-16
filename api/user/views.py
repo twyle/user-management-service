@@ -15,7 +15,7 @@ def get_user():
 @user.route('/', methods=['PUT'])
 @swag_from("./docs/update_user.yml", endpoint='user.update_user', methods=['PUT'])
 def update_user():
-    return handle_update_user(request.args.get('id'), request.json)
+    return handle_update_user(request.args.get('id'), request.form)
 
 
 @user.route('/', methods=['DELETE'])
