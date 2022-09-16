@@ -13,7 +13,7 @@ mail = Blueprint('mail', __name__)
 @swag_from("./docs/send.yml", endpoint='mail.send_mail', methods=['POST'])
 def send_mail():
     """Send an email"""    
-    return handle_send_confirm_email(request.json['email'])
+    return handle_send_confirm_email(request.args.get('id'), request.json)
 
 @mail.route('/confirm_email', methods=['GET'])
 @swag_from("./docs/confirm.yml", endpoint='mail.confirm_email', methods=['GET'])

@@ -82,6 +82,10 @@ class UnActivatedAccount(Exception):
     """Raised when the user attempts to log into a unactivated account."""
 
 
+class ActivatedAccount(Exception):
+    """Raised when the user attempts to activate an activated account."""
+
+
 class InvalidEmailAddress(Exception):
     """Raised when the email address is invalid."""
     
