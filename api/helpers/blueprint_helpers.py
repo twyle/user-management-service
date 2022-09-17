@@ -55,6 +55,12 @@ def check_if_email_id_match(email: str, id: int) -> bool:
     return False
 
 
+def delete_file_s3(filename):
+    """Delete profile pic"""
+    print(path.basename(filename))
+    s3.delete_object(Bucket=current_app.config['S3_BUCKET'], Key=path.basename(filename))
+
+
 def upload_file_to_s3(file_path, bucket_name):
     """
     Docs: http://boto3.readthedocs.io/en/latest/guide/s3.html

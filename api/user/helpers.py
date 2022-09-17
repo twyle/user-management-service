@@ -6,7 +6,8 @@ from ..helpers.blueprint_helpers import (
     check_if_user_exists,
     is_user_name_valid,
     handle_upload_image,
-    check_if_user_with_id_exists
+    check_if_user_with_id_exists,
+    delete_file_s3
 )
 from ..exceptions import (
     EmptyUserData,
@@ -37,6 +38,7 @@ def delete_user(user_id: str) -> dict:
         raise UserDoesNotExist(f'The user with id {user_id} does not exist.')
 
     user = User.query.filter_by(id=user_id).first()
+    delete_file_s3(user.profile_pic)
     db.session.delete(user)
     db.session.commit()
 

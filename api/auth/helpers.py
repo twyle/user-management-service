@@ -7,7 +7,7 @@ from ..helpers.blueprint_helpers import (
     is_user_password_valid,
     handle_upload_image,
     check_if_email_id_match,
-    check_if_user_with_id_exists
+    check_if_user_with_id_exists,
 ) 
 from os import path
 import json
@@ -215,7 +215,7 @@ def logout_user(user_id: str) -> dict:
     if not isinstance(user_id, str):
         raise TypeError('The user id must be a string')
     if not check_if_user_with_id_exists(int(user_id)):
-        raise UserDoesNotExist(f'The user with {user_id} does not exist1')
+        raise UserDoesNotExist(f'The user with id {user_id} does not exist1')
     
     return jsonify({'success': 'user logged out'}), 200
     
@@ -226,7 +226,8 @@ def handle_logout_user(user_id: str) -> dict:
         log_out_data = logout_user(user_id)
     except (
         ValueError,
-        TypeError
+        TypeError,
+        UserDoesNotExist
     ) as e:
         return jsonify({'error': str(e)}), 400
     else:
