@@ -4,7 +4,8 @@ from .helpers import (
     handle_create_user,
     handle_log_in_user,
     handle_reset_password,
-    handle_refresh_token
+    handle_refresh_token,
+    handle_logout_user
 )
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -30,7 +31,7 @@ def login():
 @swag_from("./docs/logout_user.yml", endpoint='auth.logout', methods=['POST'])
 def logout():
     # nullify the access token
-    return jsonify({'Hello': 'From the logout route!'}), 200
+    return handle_logout_user(request.args.get('id'))
 
 
 @auth.route('/refresh_token', methods=['POST'])

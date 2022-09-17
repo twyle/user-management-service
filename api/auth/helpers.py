@@ -207,6 +207,31 @@ def handle_log_in_user(user_id: str, user_data: dict) -> dict:
     else:
         return data, 200
     
+    
+def logout_user(user_id: str) -> dict:
+    """Log out a user"""
+    if not user_id:
+        raise ValueError('The user id must be provided!')
+    if not isinstance(user_id, str):
+        raise TypeError('The user id must be a string')
+    if not check_if_user_with_id_exists(int(user_id)):
+        raise UserDoesNotExist(f'The user with {user_id} does not exist1')
+    
+    return jsonify({'success': 'user logged out'}), 200
+    
+    
+def handle_logout_user(user_id: str) -> dict:
+    """Log out a logged in user"""
+    try:
+        log_out_data = logout_user(user_id)
+    except (
+        ValueError,
+        TypeError
+    ) as e:
+        return jsonify({'error': str(e)}), 400
+    else:
+        return log_out_data
+    
 
 def update_password(email: str, password:str):
     """Updates the user password."""
