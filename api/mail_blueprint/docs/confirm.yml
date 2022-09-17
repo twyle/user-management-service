@@ -5,6 +5,12 @@ produces:
   - "application/json"
 parameters:
   - in: query
+    description: The query should contain the user id
+    required: true
+    name: 'id'
+    type: 'string'
+    example: "1"
+  - in: query
     description: The query should contain the email confirm token
     required: true
     name: 'token'

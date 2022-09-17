@@ -17,6 +17,44 @@ from os import path
 from werkzeug.utils import secure_filename
 
 
+def check_if_user_with_id_exists(user_id: int) -> bool:
+    """Check if the user with the given user_id exists."""
+    if not user_id:
+        raise ValueError('The user_id has to be provided.')
+
+    if not isinstance(user_id, int):
+        raise ValueError('The user_id has to be an integer')
+
+    user = User.query.filter_by(id=user_id).first()
+
+    if user:
+        return True
+
+    return False
+
+
+def check_if_email_id_match(email: str, id: int) -> bool:
+    """Check if user id and email belong to same user"""
+    if not id:
+        raise ValueError("The user id has to be provided!")
+    
+    if not isinstance(id, int):
+        raise ValueError('The id has to be an int')
+    
+    if not email:
+        raise ValueError('The email has to be provided.')
+
+    if not isinstance(email, str):
+        raise ValueError('The user_email has to be an string')
+    
+    user = User.query.filter_by(id=id).first()
+    
+    if user.email == email:
+        return True
+    
+    return False
+
+
 def upload_file_to_s3(file_path, bucket_name):
     """
     Docs: http://boto3.readthedocs.io/en/latest/guide/s3.html

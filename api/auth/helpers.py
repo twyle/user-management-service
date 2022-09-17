@@ -5,7 +5,9 @@ from ..helpers.blueprint_helpers import (
     check_if_user_exists,
     is_user_name_valid,
     is_user_password_valid,
-    handle_upload_image
+    handle_upload_image,
+    check_if_email_id_match,
+    check_if_user_with_id_exists
 ) 
 from os import path
 import json
@@ -15,7 +17,7 @@ from flask import current_app
 from ..user.models import User, user_schema, profile_schema
 from ..extensions import db, url_serializer, s3
 from ..mail_blueprint.helpers import handle_send_confirm_email
-from itsdangerous import SignatureExpired, BadTimeSignature
+from itsdangerous import SignatureExpired, BadTimeSignature, BadSignature
 from ..exceptions import (
     EmptyUserData,
     NonDictionaryUserData,
@@ -132,8 +134,14 @@ def check_user_password(user_password: str, user: User) -> bool:
     return False
 
     
-def log_in_user(user_data: dict):
+def log_in_user(user_id: str, user_data: dict):
     """Log in a registered user."""
+    if not user_id:
+        raise ValueError('The user id has to be provided!')
+    if not isinstance(user_id, str):
+        raise TypeError('The user id has to be a string')
+    if not check_if_user_with_id_exists(int(user_id)):
+        raise UserDoesNotExist(f'There is no user with id {user_id}')
     if not user_data:
         raise EmptyUserData('The user data cannot be empty.')
 
@@ -151,22 +159,26 @@ def log_in_user(user_data: dict):
 
     if not user_data['password']:
         raise MissingPasswordData('The password data is missing')
+    
+    if not check_if_user_exists(user_data['email']):
+        raise UserDoesNotExist(f'The user with email {user_data["email"]} does not exist!')
+    
+    if not check_if_email_id_match(user_data['email'], int(user_id)):
+        raise UserDoesNotExist(f'The user with email {user_data["email"]} and id {user_id} does not exist!')
 
-    if check_if_user_exists(user_data['email']):
-        user = User.query.filter_by(email=user_data['email']).first()
-        if user:
-            if check_user_password(user_data['password'], user):
-                if user.active:
-                    user_data = {
-                        'user profile': json.loads(profile_schema.dumps(user)),
-                        'access token': create_access_token(user.id),
-                        'refresh token': create_refresh_token(user.id)
-                    }
+    user = User.query.filter_by(email=user_data['email']).first()
+    if user:
+        if check_user_password(user_data['password'], user):
+            if user.active:
+                user_data = {
+                    'user profile': json.loads(profile_schema.dumps(user)),
+                    'access token': create_access_token(user.id),
+                    'refresh token': create_refresh_token(user.id)
+                }
 
-                    return user_data
-                raise UnActivatedAccount('This account has not been activate.')
-            raise InvalidPassword('The admin password is invalid!')
-    raise UserDoesNotExist(f'The user with email {user_data["email"]} does not exist!')
+                return user_data
+            raise UnActivatedAccount('This account has not been activate.')
+        raise InvalidPassword('The admin password is invalid!')
 
 
 def handle_unactivated_account(email: str) -> dict:
@@ -174,10 +186,10 @@ def handle_unactivated_account(email: str) -> dict:
     return handle_send_confirm_email(email)
 
 
-def handle_log_in_user(user_data: dict) -> dict:
+def handle_log_in_user(user_id: str, user_data: dict) -> dict:
     """Handle a POST request to log in an admin."""
     try:
-        data = log_in_user(user_data)
+        data = log_in_user(user_id, user_data)
     except (
         EmptyUserData,
         NonDictionaryUserData,
@@ -213,21 +225,29 @@ def get_user_email(token: str) -> dict:
     try:
         email = url_serializer.loads(token, salt='somesalt', max_age=300)
     except SignatureExpired as e:
-        return jsonify({'error': 'The token has expired!'})
+        raise e
     except BadTimeSignature as e:
-        return jsonify({'error': 'Invalid token'})
+        raise e
+    except BadSignature as e:
+        raise e
     else:    
         return email
 
     
-def reset_user_password(activation_token: str, user_passwrd: dict) -> dict:
+def reset_user_password(user_id: str, activation_token: str, user_passwrd: dict) -> dict:
     """Reset the user password"""
+    if not user_id:
+        raise ValueError('The user id has to be provided')
+    if not isinstance(user_id, str):
+        raise TypeError('The user id has to be a string')
+    if not check_if_user_with_id_exists(int(user_id)):
+        raise UserDoesNotExist(f'There is no user with id {user_id}!')
     if not activation_token:
         raise ValueError('The activation token must be provided!')
     if not isinstance(activation_token, str):
         raise ValueError('The activation token must be a string!')
     if not user_passwrd:
-        raise ValueError('The passwordmust be provided!')
+        raise ValueError('The password must be provided!')
     if not isinstance(user_passwrd, dict):
         raise TypeError('The user password data must be in a dict')
     if not 'password' in user_passwrd.keys():
@@ -237,18 +257,28 @@ def reset_user_password(activation_token: str, user_passwrd: dict) -> dict:
     
     email = get_user_email(activation_token)
     
+    if not check_if_email_id_match(email, int(user_id)):
+        raise ValueError(f'The user id {user_id} and email {email} belong to different users!')
+    
     return update_password(email, user_passwrd['password'])
     
 
-def handle_reset_password(activation_token: str, user_passwrd: dict) -> dict:
+def handle_reset_password(user_id: str, activation_token: str, user_passwrd: dict) -> dict:
     """Reset user password."""
     try:
-        reset = reset_user_password(activation_token, user_passwrd)
+        reset = reset_user_password(user_id, activation_token, user_passwrd)
     except (
         ValueError,
-        TypeError
+        TypeError,
+        UserDoesNotExist
     ) as e:
         return jsonify({'error': str(e)})
+    except SignatureExpired as e:
+        return jsonify({'error': 'The token has expired!'}), 400
+    except BadTimeSignature as e:
+        return jsonify({'error': 'Invalid token'}), 400
+    except BadSignature as e:
+        return jsonify({'error': 'Incorrect token formatS'})
     else:
         return reset
     

@@ -5,7 +5,8 @@ from ..helpers.blueprint_helpers import (
     is_email_address_format_valid,
     check_if_user_exists,
     is_user_name_valid,
-    handle_upload_image
+    handle_upload_image,
+    check_if_user_with_id_exists
 )
 from ..exceptions import (
     EmptyUserData,
@@ -20,22 +21,6 @@ from ..exceptions import (
     MissingPasswordData,
     MissingNameData,
 )
-
-
-def check_if_user_with_id_exists(user_id: int) -> bool:
-    """Check if the user with the given user_id exists."""
-    if not user_id:
-        raise ValueError('The user_id has to be provided.')
-
-    if not isinstance(user_id, int):
-        raise ValueError('The user_id has to be an integer')
-
-    user = User.query.filter_by(id=user_id).first()
-
-    if user:
-        return True
-
-    return False
 
 
 def delete_user(user_id: str) -> dict:

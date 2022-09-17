@@ -1,56 +1,61 @@
 from ..extensions import url_serializer, mail, db
-from flask_mail import Message
 from itsdangerous import SignatureExpired, BadTimeSignature
-from flask import jsonify, url_for
+from flask import jsonify
 from ..user.models import User
-from ..exceptions import InvalidEmailAddress, UnActivatedAccount, UserDoesNotExist, ActivatedAccount
-from ..helpers.blueprint_helpers import check_if_user_exists, is_email_address_format_valid
-from ..user.helpers import check_if_user_with_id_exists
+from ..exceptions import UnActivatedAccount, UserDoesNotExist, ActivatedAccount
+from ..helpers.blueprint_helpers import (
+    is_email_address_format_valid,
+    check_if_email_id_match, 
+    check_if_user_with_id_exists
+)
+from .models import EmailMessage
 
 
 def activate_account(email: str):
     """Activate a user account."""
-    if check_if_user_exists(email):
-        user = User.query.filter_by(email=email).first()
-        user.active = True
-        db.session.commit()
-        return
-    else:
-        raise InvalidEmailAddress(f'The user with the email {email} does not exist!')
-        
+    user = User.query.filter_by(email=email).first()
+    user.active = True
+    db.session.commit()
+    return jsonify({'Email confirmed': email}), 200
+ 
+ 
+def confirm_email(user_id: str, token: str) -> dict:
+    """Confrim user account"""
+    if not user_id:
+        raise ValueError('The user id has to be provided!')
+    if not isinstance(user_id, str):
+        raise TypeError('The user id has to be a string!')
+    if not token:
+        raise ValueError('The token has to be provided!')
+    if not isinstance(token, str):
+        raise TypeError('The token has to be a string!') 
+    
+    if not check_if_user_with_id_exists(int(user_id)):
+        raise UserDoesNotExist(f'The user with id {user_id} does not exist!')
+    
+    email = url_serializer.loads(token, salt='somesalt', max_age=60)
+    
+    if not check_if_email_id_match(email, int(user_id)):
+        raise ValueError(f'The id {user_id} and email {email} do not belong to the same user!')
 
-def handle_email_confirm_request(token: str) -> dict:
+    return activate_account(email)
+
+def handle_email_confirm_request(user_id: str, token: str) -> dict:
     """Handle the GET request to /api/v1/mail/conrfim."""
     try:
-        email = url_serializer.loads(token, salt='somesalt', max_age=60)
+        confirm_data = confirm_email(user_id, token)
     except SignatureExpired as e:
         return jsonify({'error': 'The token has expired!'})
     except BadTimeSignature as e:
         return jsonify({'error': 'Invalid token'})
+    except (
+        ValueError,
+        TypeError,
+        UserDoesNotExist
+    ) as e:
+        return jsonify({'error': str(e)})
     else:    
-        try:
-            activate_account(email)
-        except InvalidEmailAddress as e:
-            return jsonify({'error': str(e)})
-        else:
-            return jsonify({'Email confirmed': email}), 200
-        
-        
-def help_send_confirm_email(email: str) -> dict:
-    "Send the confirm email"
-    token = url_serializer.dumps(email, salt='somesalt')
-    link = url_for('mail.confirm_email', token=token, _external=True)
-    
-    message = Message(
-        'Confirm email', 
-        sender=email, 
-        recipients=[email]
-        )
-    message.body = f'Your link is {link}'
-    
-    mail.send(message)
-    
-    return jsonify({'Confirmation email sent to': email, "token": token}), 200
+        return confirm_data
     
         
 def send_confirm_email(user_id: str, email_data: dict) -> dict:
@@ -74,18 +79,15 @@ def send_confirm_email(user_id: str, email_data: dict) -> dict:
     if not check_if_user_with_email_exists(email_data['email']):
         raise UserDoesNotExist(f'The user with email {email_data["email"]} does not exist!')
     
-    user = User.query.filter_by(id=int(user_id)).first()
-    
     if not check_if_email_id_match(email_data["email"], int(user_id)):
         raise UserDoesNotExist(f'There is no user with the id {user_id} and email {email_data["email"]}')
     
     if check_if_user_active(int(user_id)):
         raise ActivatedAccount('This account has alreadybeen activated!')
     
-    return help_send_confirm_email(email_data['email'])
+    return handle_send_email(email_data['email'], 'Confirm Account', 'mail.confirm_email')
 
 
-# Needs refactoring for use with password reset
 def handle_send_confirm_email(user_id: str, email_data: dict) -> dict:
     """Send the confirmation email."""
     try:
@@ -117,44 +119,15 @@ def check_if_user_with_email_exists(user_email: int) -> bool:
     return False
 
 
-def check_if_email_id_match(email: str, id: int) -> bool:
-    """Check if user id and email belong to same user"""
-    if not id:
-        raise ValueError("The user id has to be provided!")
-    
-    if not isinstance(id, int):
-        raise ValueError('The id has to be an int')
-    
-    if not email:
-        raise ValueError('The email has to be provided.')
-
-    if not isinstance(email, str):
-        raise ValueError('The user_email has to be an string')
-    
-    user = User.query.filter_by(id=id).first()
-    
-    if user.email == email:
-        return True
-    
-    return False
-
-
-# Needs refactoring for use with account confirmation
-def handle_send_email(email: str) -> dict:
+def handle_send_email(email_address: str, email_title: str, api_email_link: str) -> dict:
     """Send the reset email."""
-    token = url_serializer.dumps(email, salt='somesalt')
-    link = url_for('auth.reset_password', token=token, _external=True)
-    
-    message = Message(
-        'Password reset', 
-        sender=email, 
-        recipients=[email]
-        )
-    message.body = f'Your password reset is {link}'
-    
-    mail.send(message)
-    
-    return jsonify({'Password reset email sent to': email, "token": token}), 200
+    email_message = EmailMessage(
+        email_title=email_title,
+        api_email_link=api_email_link,
+        email_address=email_address
+    )
+
+    return email_message.send_message()
 
 
 def check_if_user_active(id: int) -> bool:
@@ -194,7 +167,7 @@ def send_password_reset_email(id: str, email_data: dict) -> dict:
     if not check_if_user_active(int(id)):
         raise UnActivatedAccount('You cannot change password for unactivated account!')
     
-    return handle_send_email(email_data['email'])
+    return handle_send_email(email_data['email'], 'Password Reset', 'auth.reset_password')
 
 
 def handle_send_reset_password_email(id: str, email_data: dict) -> dict:
