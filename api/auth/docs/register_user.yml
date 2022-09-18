@@ -2,32 +2,29 @@ description: User Registration
 tags:
   - Authentication
 produces:
-  - "application/json"
-security:
-  - APIKeyHeader: [ 'Authorization' ]
+  - "application/json"  
 parameters:
-  - name: body
-    description: The body should contain the User Registration data
-    in: body
+  - name: "User Name"
+    description: "The user name"
     required: true
-    schema:
-      type: object
-      required:
-        - "email"
-        - "password"
-        - "name"
-        - "profile-pic"
-      properties:
-        email:
-          type: "email"
-          example: "lyle@gmail.com"
-        name:
-          type: "username"
-          example: "lyle"
-        password:
-          type: "string"
-          format: password
-          example: "********"
+    in: "formData"
+    type: string
+  - name: "Email"
+    description: "The user email"
+    required: true
+    in: "formData"
+    type: string
+  - name: "Password"
+    description: "The user password"
+    required: false
+    in: "formData"
+    type: password
+  - name: "Profile Picture"
+    description: "User's profile picture"
+    required: false
+    in: "formData"
+    type: file
+
 responses:
   201:
     description: When a user succesfully registers.

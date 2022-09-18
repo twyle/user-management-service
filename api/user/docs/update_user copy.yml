@@ -2,7 +2,7 @@ description: Update a user's data
 tags:
   - User
 consumes:
-  - "multipart/form-data"
+  - "application/json"
 produces:
   - "application/json"
 security:
@@ -13,21 +13,25 @@ parameters:
     required: true
     name: 'id'
     type: 'string'
-  - name: "User Name"
-    description: "The user name"
-    required: false
-    in: "formData"
-    type: string
-  - name: "Email"
-    description: "The user email"
-    required: false
-    in: "formData"
-    type: email
-  - name: "Profile Picture"
-    description: "User's profile picture"
-    required: false
-    in: "formData"
-    type: file
+  - name: body
+    description: The body should contain the user data
+    in: body
+    required: true
+    schema:
+      type: object
+      required:
+        - "email"
+        - "name"
+        - "profile-pic"
+      properties:
+        email:
+          type: "email"
+          example: "lyle@gmail.com"
+        name:
+          type: "username"
+          example: "lyle"
+        profile_pic:
+          type: "string"
 responses:
   200:
     description: When a user is successfully updated
