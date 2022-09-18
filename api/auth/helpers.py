@@ -15,7 +15,7 @@ from flask import jsonify
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity
 from flask import current_app
 from ..user.models import User, user_schema, profile_schema
-from ..extensions import db, url_serializer, s3
+from ..extensions import db, url_serializer
 from ..mail_blueprint.helpers import handle_send_confirm_email
 from itsdangerous import SignatureExpired, BadTimeSignature, BadSignature
 from ..exceptions import (
@@ -126,12 +126,53 @@ def handle_create_user(request_data: dict, profile_pic):
     else:
         return registered_user_data, 201
     
+
+def activate_account(email: str):
+    """Activate a user account."""
+    user = User.query.filter_by(email=email).first()
+    user.active = True
+    db.session.commit()
+    return jsonify({'Email confirmed': email}), 200
+ 
+ 
+def confirm_email(user_id: str, token: str) -> dict:
+    """Confrim user account"""
+    if not user_id:
+        raise ValueError('The user id has to be provided!')
+    if not isinstance(user_id, str):
+        raise TypeError('The user id has to be a string!')
+    if not token:
+        raise ValueError('The token has to be provided!')
+    if not isinstance(token, str):
+        raise TypeError('The token has to be a string!') 
     
-def check_user_password(user_password: str, user: User) -> bool:
-    """Check if user passwords match."""
-    if user_password == user.password:
-        return True
-    return False
+    if not check_if_user_with_id_exists(int(user_id)):
+        raise UserDoesNotExist(f'The user with id {user_id} does not exist!')
+    
+    email = url_serializer.loads(token, salt='somesalt', max_age=60)
+    
+    if not check_if_email_id_match(email, int(user_id)):
+        raise ValueError(f'The id {user_id} and email {email} do not belong to the same user!')
+
+    return activate_account(email)
+
+
+def handle_email_confirm_request(user_id: str, token: str) -> dict:
+    """Handle the GET request to /api/v1/mail/conrfim."""
+    try:
+        confirm_data = confirm_email(user_id, token)
+    except SignatureExpired as e:
+        return jsonify({'error': 'The token has expired!'})
+    except BadTimeSignature as e:
+        return jsonify({'error': 'Invalid token'})
+    except (
+        ValueError,
+        TypeError,
+        UserDoesNotExist
+    ) as e:
+        return jsonify({'error': str(e)})
+    else:    
+        return confirm_data
 
     
 def log_in_user(user_id: str, user_data: dict):
@@ -168,7 +209,7 @@ def log_in_user(user_id: str, user_data: dict):
 
     user = User.query.filter_by(email=user_data['email']).first()
     if user:
-        if check_user_password(user_data['password'], user):
+        if user.check_password(user_data['password']):
             if user.active:
                 user_data = {
                     'user profile': json.loads(profile_schema.dumps(user)),

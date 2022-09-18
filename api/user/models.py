@@ -20,21 +20,6 @@ class User(db.Model):
     password_hash: str = db.Column(db.String(100), nullable=False)
     profile_pic: str = db.Column(db.String(100), nullable=True)
     
-
-    def __init__(self, name: str, email: str, password: str) -> None:
-        """Create a new user.
-        
-        Creates a new user in the user table with an increasing id, with active
-        set as True by default and with the given email.
-        
-        Attributes
-        ----------
-        email: str
-            The user's email
-        """
-        self.name = name
-        self.email = email 
-        self.password = password
         
     @property
     def password(self):

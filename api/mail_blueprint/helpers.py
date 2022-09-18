@@ -1,5 +1,3 @@
-from ..extensions import url_serializer, mail, db
-from itsdangerous import SignatureExpired, BadTimeSignature
 from flask import jsonify
 from ..user.models import User
 from ..exceptions import UnActivatedAccount, UserDoesNotExist, ActivatedAccount
@@ -9,53 +7,6 @@ from ..helpers.blueprint_helpers import (
     check_if_user_with_id_exists
 )
 from .models import EmailMessage
-
-
-def activate_account(email: str):
-    """Activate a user account."""
-    user = User.query.filter_by(email=email).first()
-    user.active = True
-    db.session.commit()
-    return jsonify({'Email confirmed': email}), 200
- 
- 
-def confirm_email(user_id: str, token: str) -> dict:
-    """Confrim user account"""
-    if not user_id:
-        raise ValueError('The user id has to be provided!')
-    if not isinstance(user_id, str):
-        raise TypeError('The user id has to be a string!')
-    if not token:
-        raise ValueError('The token has to be provided!')
-    if not isinstance(token, str):
-        raise TypeError('The token has to be a string!') 
-    
-    if not check_if_user_with_id_exists(int(user_id)):
-        raise UserDoesNotExist(f'The user with id {user_id} does not exist!')
-    
-    email = url_serializer.loads(token, salt='somesalt', max_age=60)
-    
-    if not check_if_email_id_match(email, int(user_id)):
-        raise ValueError(f'The id {user_id} and email {email} do not belong to the same user!')
-
-    return activate_account(email)
-
-def handle_email_confirm_request(user_id: str, token: str) -> dict:
-    """Handle the GET request to /api/v1/mail/conrfim."""
-    try:
-        confirm_data = confirm_email(user_id, token)
-    except SignatureExpired as e:
-        return jsonify({'error': 'The token has expired!'})
-    except BadTimeSignature as e:
-        return jsonify({'error': 'Invalid token'})
-    except (
-        ValueError,
-        TypeError,
-        UserDoesNotExist
-    ) as e:
-        return jsonify({'error': str(e)})
-    else:    
-        return confirm_data
     
         
 def send_confirm_email(user_id: str, email_data: dict) -> dict:

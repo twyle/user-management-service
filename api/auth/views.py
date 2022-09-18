@@ -5,7 +5,8 @@ from .helpers import (
     handle_log_in_user,
     handle_reset_password,
     handle_refresh_token,
-    handle_logout_user
+    handle_logout_user,
+    handle_email_confirm_request
 )
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
@@ -18,6 +19,13 @@ auth = Blueprint('auth', __name__)
 def register():
     """Create a new User."""
     return handle_create_user(request.form, request.files)
+
+
+@auth.route('/confirm_email', methods=['GET'])
+@swag_from("./docs/confirm.yml", endpoint='auth.confirm_email', methods=['GET'])
+def confirm_email():
+    """Handle email confirmation."""
+    return handle_email_confirm_request(request.args.get('id'), request.args.get('token'))
 
 
 @auth.route('/login', methods=['POST'])

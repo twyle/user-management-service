@@ -1,6 +1,6 @@
 description: Confirm the email address
 tags:
-  - Email
+  - Authentication
 produces:
   - "application/json"
 parameters:

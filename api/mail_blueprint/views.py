@@ -1,6 +1,5 @@
 from flask import Blueprint, request
 from .helpers import (
-    handle_email_confirm_request,
     handle_send_confirm_email,
     handle_send_reset_password_email
 )
@@ -14,12 +13,6 @@ mail = Blueprint('mail', __name__)
 def send_mail():
     """Send an email"""    
     return handle_send_confirm_email(request.args.get('id'), request.json) 
-
-@mail.route('/confirm_email', methods=['GET'])
-@swag_from("./docs/confirm.yml", endpoint='mail.confirm_email', methods=['GET'])
-def confirm_email():
-    """Handle email confirmation."""
-    return handle_email_confirm_request(request.args.get('id'), request.args.get('token'))
 
 
 @mail.route('/send_reset_password_email', methods=['POST'])
