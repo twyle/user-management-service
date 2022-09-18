@@ -62,7 +62,6 @@ jobs:
       run: |
         touch .env
         echo FLASK_DEBUG=${{secrets.FLASK_DEBUG}} >> .env
-        echo FLASK_APP=${{secrets.FLASK_APP}} >> .env
         echo FLASK_ENV=${{secrets.FLASK_ENV}} >> .env
         echo SECRET_KEY=${{secrets.SECRET_KEY}} >> .env
 
@@ -83,21 +82,21 @@ jobs:
         echo AWS_ACCESS_SECRET=${{secrets.AWS_ACCESS_SECRET}} >> .env
         echo S3_BUCKET=${{secrets.S3_BUCKET}} >> .env
 
-    # - name: Create the test tables
-    #   run: |
-    #     python manage.py create_db
+    - name: Create the test tables
+      run: |
+        python manage.py create_db
 
     - name: Test with pytest
       run: |
         if [ -d tests ] || [ -d test ]; then python -m pytest --disable-pytest-warnings; fi
 
-    # - name: Pytest Coverage
-    #   run: |
-    #     if [ -d tests ] || [ -d test ]; then coverage run -m pytest; fi
-    #     if [ -d tests ] || [ -d test ]; then coverage report -m; fi
+    - name: Pytest Coverage
+      run: |
+        if [ -d tests ] || [ -d test ]; then coverage run -m pytest; fi
+        if [ -d tests ] || [ -d test ]; then coverage report -m; fi
 
-    # - name: Coverage Report
-    #   run: coverage xml
+    - name: Coverage Report
+      run: coverage xml
 
   Test-Local:
 
@@ -122,7 +121,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
-    # needs: [Build]
+    needs: [Build]
 
     strategy:
       matrix:
@@ -146,7 +145,6 @@ jobs:
       run: |
         touch .env
         echo FLASK_DEBUG=${{secrets.FLASK_DEBUG}} >> .env
-        echo FLASK_APP=${{secrets.FLASK_APP}} >> .env
         echo FLASK_ENV=${{secrets.FLASK_ENV}} >> .env
         echo SECRET_KEY=${{secrets.SECRET_KEY}} >> .env
 
