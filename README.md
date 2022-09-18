@@ -34,7 +34,7 @@ It's pretty easy to use the application. On the home page (http://localhost:5000
  3. Access all the sites functionality.
 
 
-[Watch the video](https://youtu.be/jl3b4eLKiP8)
+[![Watch the video](https://img.youtube.com/vi/jl3b4eLKiP8/default.jpg)](https://youtu.be/jl3b4eLKiP8)
 
  ## Features
 
