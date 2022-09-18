@@ -23,19 +23,23 @@
 ![](assets/images/user_management_service.png)
 
 ## Project Overview
-This is a simple web application that makes the management of users easier. It enables a new user to register for an account and authenticates and authorizes registered users. It is built with flask and deployed to AWS Beanstalk.
+This is a web application that makes the managemnet of users easier. It enables a userto register for an account using their username, a password and their email address. Once registered, the user has to confirm their email address, then they can log in to receive an authorization token. The authorization token enables them to access protected routes. 
 
 ## Working 
 
 It's pretty easy to use the application. On the home page (http://localhost:5000/apidocs):
 
- 1. Create an account (post details through registre route)
- 2. Confirm your email address (paste the link given after registration into a browser).
- 3. Access all the sites functionality.
+ 1. Create an account (post details through register route)
+ 2. Send a confirmation email (post email address and user id theough the send_confirm_email route)
+ 3. Confirm email address (submit the user id token from step 2)
+ 4. Log in using the login route (submit your email and password)
+ 5. Use the access token from step 4 to authorize yourself.
+ 6. Access other functionalities such as user update, viewing, deletion.
 
- <p align=center>
-  <img src="assets/videos/user-management-service.gif" />
-</p>
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=jl3b4eLKiP8" target="_blank">
+ <img src="assets/videos/user-management-service-v3.gif" />
+</a>
 
  ## Features
 
@@ -95,15 +99,28 @@ Here is how to set up the application locally:
 
       ```sh
 
-        FLASK_APP=manage.py
         FLASK_DEBUG=True
         FLASK_ENV=development
+        FLASK_APP=manage.py
 
-        POSTGRES_HOST=<YOUR_COMPUTER_IP_ADDRESS>
+        SECRET_KEY=secret-key
+
+        POSTGRES_HOST=localhost
+        POSTGRES_USER=lyle
+        POSTGRES_PASSWORD=lyle
         POSTGRES_DB=lyle
         POSTGRES_PORT=5432
-        POSTGRES_USER=postgres
-        POSTGRES_PASSWORD=lyle
+
+        MAIL_USERNAME=<mail-user-name>
+        MAIL_PASSWORD=<mail-password>
+        MAIL_SERVER=<mail-server>
+        MAIL_PORT=465
+        MAIL_USE_SSL=True
+        MAIL_DEFAULT_SENDER=<default-email>
+
+        S3_BUCKET=<s3-bucket-name>
+        AWS_ACCESS_KEY=<aws-access-key>
+        AWS_ACCESS_SECRET=<aws-secret-key>
 
       ```
 
@@ -134,7 +151,6 @@ Here is how to set up the application locally:
       ```sh
       flask db migrate -m "Initial migration."
       flask db upgrade
-      python manage.py seed_db
       ```
 
   9. Start the services:
@@ -146,6 +162,10 @@ Here is how to set up the application locally:
   10. View the running application
 
       Head over to http://0.0.0.0:5000/apidocs 
+
+ <p align=center>
+  <img src="assets/videos/user-management-service-v3.gif" />
+</p>
 
 ## Development
 
@@ -163,15 +183,16 @@ Here is how to set up the application locally:
 
         | Route                   | Method  | Description                 |
         | ------------------------| ------- |---------------------------- |
-        | 'api/v0/auth/register'  | POST    | Register a new user.        |
-        | 'api/v0/auth/login'     | POST    | Login as a registered user. |
-        | 'api/v0/auth/logout'    | POST    | Logout as a logged in user. |
-        | 'api/v0/auth/confirm'   | GET     | Confirm email address.      |
-        | 'api/v0/auth/refresh'   | GET     | Get a new access token.     |
-        | 'api/v0/user'           | DELETE  | Delete a user.              |
-        | 'api/v0/user'           | PUT     | Update user info.           |
-        | 'api/v0/user'           | GET     | Get a user's info.          |
-        | 'api/v0/users'          | GET     | List all users.             |
+        | 'api/v1/auth/register'  | POST    | Register a new user.        |
+        | 'api/v1/auth/login'     | POST    | Login as a registered user. |
+        | 'api/v1/auth/logout'    | POST    | Logout as a logged in user. |
+        | 'api/v1/auth/confirm'   | GET     | Confirm email address.      |
+        | 'api/v1/auth/send'      | POST    | Send activation email.      |
+        | 'api/v1/auth/refresh'   | GET     | Get a new access token.     |
+        | 'api/v1/user'           | DELETE  | Delete a user.              |
+        | 'api/v1/user'           | PUT     | Update user info.           |
+        | 'api/v1/user'           | GET     | Get a user's info.          |
+        | 'api/v1/users'          | GET     | List all users.             |
 
         1. Register as a new user with a unique email address and password as well as name.(Generates a uniques token) 
         2. Proceed to your email address and click on the link given within 24 hours to activate your account. (marks account as activated)

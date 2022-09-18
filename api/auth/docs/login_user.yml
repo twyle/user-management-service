@@ -3,9 +3,12 @@ tags:
   - Authentication
 produces:
   - "application/json"
-security:
-  - APIKeyHeader: [ 'Authorization' ]
 parameters:
+  - in: query
+    description: The query should contain the user id
+    required: true
+    name: 'id'
+    type: 'string'
   - name: body
     description: The body should contain the User Login data
     in: body
