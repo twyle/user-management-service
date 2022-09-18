@@ -99,15 +99,28 @@ Here is how to set up the application locally:
 
       ```sh
 
-        FLASK_APP=manage.py
         FLASK_DEBUG=True
         FLASK_ENV=development
+        FLASK_APP=manage.py
 
-        POSTGRES_HOST=<YOUR_COMPUTER_IP_ADDRESS>
+        SECRET_KEY=secret-key
+
+        POSTGRES_HOST=localhost
+        POSTGRES_USER=lyle
+        POSTGRES_PASSWORD=lyle
         POSTGRES_DB=lyle
         POSTGRES_PORT=5432
-        POSTGRES_USER=postgres
-        POSTGRES_PASSWORD=lyle
+
+        MAIL_USERNAME=<mail-user-name>
+        MAIL_PASSWORD=<mail-password>
+        MAIL_SERVER=<mail-server>
+        MAIL_PORT=465
+        MAIL_USE_SSL=True
+        MAIL_DEFAULT_SENDER=<default-email>
+
+        S3_BUCKET=<s3-bucket-name>
+        AWS_ACCESS_KEY=<aws-access-key>
+        AWS_ACCESS_SECRET=<aws-secret-key>
 
       ```
 
@@ -138,7 +151,6 @@ Here is how to set up the application locally:
       ```sh
       flask db migrate -m "Initial migration."
       flask db upgrade
-      python manage.py seed_db
       ```
 
   9. Start the services:
