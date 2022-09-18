@@ -36,6 +36,10 @@ It's pretty easy to use the application. On the home page (http://localhost:5000
 
 [![Watch the video](https://img.youtube.com/vi/jl3b4eLKiP8/default.jpg)](https://youtu.be/jl3b4eLKiP8)
 
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=jl3b4eLKiP8" target="_blank">
+ <img src="http://img.youtube.com/vi/jl3b4eLKiP8/mqdefault.jpg" alt="Watch the video" width="240" height="180" border="10" />
+</a>
+
  ## Features
 
 This application has several features including:
