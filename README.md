@@ -23,7 +23,7 @@
 ![](assets/images/user_management_service.png)
 
 ## Project Overview
-This is a simple web application that makes the management of users easier. It enables a new user to register for an account and authenticates and authorizes registered users. It is built with flask and deployed to AWS Beanstalk.
+This is a web application that makes the managemnet of users easier. It enables a userto register for an account using their username, a password and their email address. Once registered, the user has to confirm their email address, then they can log in to receive an authorization token. The authorization token enables them to access protected routes. 
 
 ## Working 
 
