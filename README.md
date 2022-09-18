@@ -29,9 +29,12 @@ This is a simple web application that makes the management of users easier. It e
 
 It's pretty easy to use the application. On the home page (http://localhost:5000/apidocs):
 
- 1. Create an account (post details through registre route)
- 2. Confirm your email address (paste the link given after registration into a browser).
- 3. Access all the sites functionality.
+ 1. Create an account (post details through register route)
+ 2. Send a confirmation email (post email address and user id theough the send_confirm_email route)
+ 3. Confirm email address (submit the user id token from step 2)
+ 4. Log in using the login route (submit your email and password)
+ 5. Use the access token from step 4 to authorize yourself.
+ 6. Access other functionalities such as user update, viewing, deletion.
 
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=jl3b4eLKiP8" target="_blank">
