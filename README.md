@@ -37,6 +37,8 @@ It's pretty easy to use the application. On the home page (http://localhost:5000
  6. Access other functionalities such as user update, viewing, deletion.
 
 
+Click on the video below to watch the pplication demo on YouTube:
+
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=jl3b4eLKiP8" target="_blank">
  <img src="assets/videos/user-management-service-v3.gif" />
 </a>
