@@ -37,6 +37,8 @@ It's pretty easy to use the application. On the home page (http://localhost:5000
   <img src="assets/videos/user-management-service-v3.gif" />
 </p>
 
+[![Watch the video](https://img.youtube.com/vi/nTQUwghvy5Q/default.jpg)](https://youtu.be/nTQUwghvy5Q)
+
  ## Features
 
 This application has several features including:
