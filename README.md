@@ -35,7 +35,7 @@ It's pretty easy to use the application. On the home page (http://localhost:5000
 
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=jl3b4eLKiP8" target="_blank">
- <img src="http://img.youtube.com/vi/jl3b4eLKiP8/mqdefault.jpg" alt="Watch the video" width="500" height="500" border="10" />
+ <img src="assets/videos/user-management-service-v3.gif" />
 </a>
 
  ## Features
