@@ -79,8 +79,8 @@ jobs:
         echo MAIL_USE_SSL=${{secrets.MAIL_USE_SSL}} >> .env
         echo MAIL_DEFAULT_SENDER=${{secrets.MAIL_DEFAULT_SENDER}} >> .env
 
-        echo AWS_KEY=${{secrets.AWS_KEY}} >> .env
-        echo AWS_SECRET=${{secrets.AWS_SECRET}} >> .env
+        echo AWS_ACCESS_KEY=${{secrets.AWS_ACCESS_KEY}} >> .env
+        echo AWS_ACCESS_SECRET=${{secrets.AWS_ACCESS_SECRET}} >> .env
         echo S3_BUCKET=${{secrets.S3_BUCKET}} >> .env
 
     - name: Create the test tables
