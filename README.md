@@ -33,11 +33,8 @@ It's pretty easy to use the application. On the home page (http://localhost:5000
  2. Confirm your email address (paste the link given after registration into a browser).
  3. Access all the sites functionality.
 
- <p align=center>
-  <img src="assets/videos/user-management-service-v3.gif" />
-</p>
 
-[![Watch the video](https://img.youtube.com/vi/nTQUwghvy5Q/default.jpg)](https://youtu.be/nTQUwghvy5Q)
+[![Watch the video](https://img.youtube.com/vi/nTQUwghvy5Q/default.jpg)](https://youtu.be/jl3b4eLKiP8)
 
  ## Features
 
@@ -148,6 +145,10 @@ Here is how to set up the application locally:
   10. View the running application
 
       Head over to http://0.0.0.0:5000/apidocs 
+
+ <p align=center>
+  <img src="assets/videos/user-management-service-v3.gif" />
+</p>
 
 ## Development
 
