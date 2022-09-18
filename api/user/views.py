@@ -22,7 +22,7 @@ def update_user():
 
 
 @user.route('/', methods=['DELETE'])
-# @jwt_required()
+@jwt_required()
 @swag_from("./docs/delete_user.yml", endpoint='user.delete_user', methods=['DELETE'])
 def delete_user():
     """Delete a user."""
@@ -30,7 +30,7 @@ def delete_user():
 
 
 @user.route('/users', methods=['GET'])
-# @jwt_required()
+@jwt_required()
 @swag_from("./docs/get_all_users.yml", endpoint='user.get_all_users', methods=['GET'])
 def get_all_users():
     """List all the registered users."""

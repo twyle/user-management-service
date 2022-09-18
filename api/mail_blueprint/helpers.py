@@ -36,7 +36,7 @@ def send_confirm_email(user_id: str, email_data: dict) -> dict:
     if check_if_user_active(int(user_id)):
         raise ActivatedAccount('This account has alreadybeen activated!')
     
-    return handle_send_email(email_data['email'], 'Confirm Account', 'mail.confirm_email')
+    return handle_send_email(email_data['email'], 'Confirm Account', 'auth.confirm_email')
 
 
 def handle_send_confirm_email(user_id: str, email_data: dict) -> dict:

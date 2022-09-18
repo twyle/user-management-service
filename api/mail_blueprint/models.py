@@ -25,7 +25,7 @@ class EmailMessage:
     
     def _create_link(self):
         """Creates the email link"""
-        self.link = url_for('mail.confirm_email', token=self.token, _external=True)
+        self.link = url_for(self.api_email_link, token=self.token, _external=True)
         
     def _create_message(self):
         """Create the email"""

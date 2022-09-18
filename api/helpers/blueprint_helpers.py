@@ -142,8 +142,7 @@ def is_user_password_valid(user_password: str):
     if len(user_password) <= current_app.config["PASSWORD_MIN_LENGTH"]:
         raise PasswordTooShort(f'The user_password has to be more than {current_app.config["PASSWORD_MIN_LENGTH"]}')
 
-    if user_password.isalnum():
-        msg = 'When checking if user_password is valid, he user_password was not alphanumeric.'
+    if not user_password.isalnum():
         raise PasswordNotAlphaNumeric('The user_password has to be alphanumeric.')
 
     return True

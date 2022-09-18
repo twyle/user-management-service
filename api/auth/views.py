@@ -35,7 +35,7 @@ def login():
 
 
 @auth.route('/logout', methods=['POST'])
-# @jwt_required()
+@jwt_required()
 @swag_from("./docs/logout_user.yml", endpoint='auth.logout', methods=['POST'])
 def logout():
     # nullify the access token
@@ -43,7 +43,7 @@ def logout():
 
 
 @auth.route('/refresh_token', methods=['POST'])
-# @jwt_required(refresh=True)
+@jwt_required(refresh=True)
 @swag_from("./docs/refresh_token.yml", endpoint='auth.refresh', methods=['POST'])
 def refresh():
     """Generate a refresh token."""
@@ -51,6 +51,7 @@ def refresh():
 
 
 @auth.route('/reset_password', methods=['POST'])
+@jwt_required()
 @swag_from("./docs/password_reset.yml", endpoint='auth.reset_password', methods=['POST'])
 def reset_password():
     return handle_reset_password(request.args.get('id'), request.args.get('token'), request.json)
