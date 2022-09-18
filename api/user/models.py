@@ -1,5 +1,4 @@
-from email.policy import default
-from ..extensions import db, ma
+from ..extensions import db, ma, bcrypt
 from datetime import datetime
 from dataclasses import dataclass
 
@@ -18,7 +17,7 @@ class User(db.Model):
     date_registered = db.Column(db.DateTime(), default=datetime.utcnow)
     active: bool = db.Column(db.Boolean(), nullable=False, default=False)
     admin: bool = db.Column(db.Boolean(), nullable=False, default=False)
-    password: str = db.Column(db.String(100), nullable=False)
+    password_hash: str = db.Column(db.String(100), nullable=False)
     profile_pic: str = db.Column(db.String(100), nullable=True)
     
 
@@ -36,7 +35,17 @@ class User(db.Model):
         self.name = name
         self.email = email 
         self.password = password
+        
+    @property
+    def password(self):
+        raise AttributeError('Password is a write-only field!')
+    
+    @password.setter
+    def password(self, password):
+        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
 
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password_hash, password)
 
 class UserSchema(ma.Schema):
     class Meta:

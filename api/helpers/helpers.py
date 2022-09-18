@@ -58,3 +58,9 @@ def seed_db_():
     
     db.session.add_all([lyle_user, lyle_user1, lyle_admin])
     db.session.commit()
+    
+def create_db_():
+    """Create the database and all the tables."""
+    db.drop_all()
+    db.create_all()
+    db.session.commit()

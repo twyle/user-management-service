@@ -10,6 +10,7 @@ from itsdangerous import URLSafeTimedSerializer
 import os
 import boto3
 from dotenv import load_dotenv
+from flask_bcrypt import Bcrypt
 
 
 load_dotenv()
@@ -21,6 +22,7 @@ migrate = Migrate()
 ma = Marshmallow()
 jwt = JWTManager()
 mail = Mail()
+bcrypt = Bcrypt()
 
 url_serializer = URLSafeTimedSerializer(os.getenv('SECRET_KEY', 'secret-key'))
 
