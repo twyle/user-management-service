@@ -9,5 +9,5 @@ def test_health(client):
     WHEN we send a GET request
     THEN we should get a 200 OK response
     """
-    resp = client.get('/')
-    assert resp.status_code == 200 
+    resp = client.get("/")
+    assert resp.status_code == 200

@@ -2,7 +2,12 @@
 """This module sets up the fixtures that will be used in our testing."""
 import pytest
 from api import create_app as create_app_, db
-from api.config.config import DevelopmentConfig, ProductionConfig, StagingConfig, TestingConfig
+from api.config.config import (
+    DevelopmentConfig,
+    ProductionConfig,
+    StagingConfig,
+    TestingConfig,
+)
 
 
 @pytest.fixture

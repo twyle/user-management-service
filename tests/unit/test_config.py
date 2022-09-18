@@ -3,5 +3,5 @@
 
 
 def test_development_config(create_development_app):
-    assert create_development_app.config['DEBUG'] is True
-    assert create_development_app.config['SECRET_KEY'] == 'secret-key'
+    assert create_development_app.config["DEBUG"] is True
+    assert create_development_app.config["SECRET_KEY"] == "secret-key"
