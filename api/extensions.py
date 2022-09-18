@@ -24,12 +24,12 @@ jwt = JWTManager()
 mail = Mail()
 bcrypt = Bcrypt()
 
-url_serializer = URLSafeTimedSerializer(os.getenv('SECRET_KEY', 'secret-key'))
+url_serializer = URLSafeTimedSerializer(os.getenv("SECRET_KEY", "secret-key"))
 
 s3 = boto3.client(
-   "s3",
-   aws_access_key_id=os.environ['AWS_ACCESS_KEY'],
-   aws_secret_access_key=os.environ['AWS_ACCESS_SECRET']
+    "s3",
+    aws_access_key_id=os.environ["AWS_ACCESS_KEY"],
+    aws_secret_access_key=os.environ["AWS_ACCESS_SECRET"],
 )
 
 
@@ -45,40 +45,35 @@ swagger_template = {
             "url": "www.twitter.com/lylethedesigner",
         },
         "termsOfService": "www.twitter.com/deve",
-        "version": "1.0"
+        "version": "1.0",
     },
     "host": LazyString(lambda: request.host),
     "basePath": "/",  # base bash for blueprint registration
-    "schemes": [
-        "http",
-        "https"
-    ],
+    "schemes": ["http", "https"],
     "securityDefinitions": {
         "APIKeyHeader": {
             "type": "apiKey",
             "name": "Authorization",
             "in": "header",
-            "description": "JWT Authorization header using the Bearer scheme. Example:\"Authorization: Bearer {token}\""
+            "description": 'JWT Authorization header using the Bearer scheme. Example:"Authorization: Bearer {token}"',
         }
     },
 }
 
 
 swagger_config = {
-    "headers": [
-    ],
+    "headers": [],
     "specs": [
         {
-            "endpoint": 'apispec',
-            "route": '/apispec.json',
+            "endpoint": "apispec",
+            "route": "/apispec.json",
             "rule_filter": lambda rule: True,  # all in
             "model_filter": lambda tag: True,  # all in
         }
     ],
     "static_url_path": "/flasgger_static",
     "swagger_ui": True,
-    "specs_route": "/apidocs/"
+    "specs_route": "/apidocs/",
 }
 
-swagger = Swagger(template=swagger_template,
-                  config=swagger_config)
+swagger = Swagger(template=swagger_template, config=swagger_config)

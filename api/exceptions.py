@@ -56,7 +56,7 @@ class UserDoesNotExist(Exception):
 
 class PasswordTooLong(Exception):
     """Raised when the given admin password is too long."""
-    
+
 
 class PasswordTooShort(Exception):
     """Raised when the given admin password is too short."""
@@ -68,7 +68,7 @@ class PasswordNotAlphaNumeric(Exception):
 
 class InvalidPassword(Exception):
     """Raised when an invalid admin password is given."""
-    
+
 
 class UserNameTooShort(Exception):
     """Raised when the username given is too short."""
@@ -76,7 +76,7 @@ class UserNameTooShort(Exception):
 
 class UserNameTooLong(Exception):
     """Raised when the username given is too long."""
-    
+
 
 class UnActivatedAccount(Exception):
     """Raised when the user attempts to log into a unactivated account."""
@@ -88,7 +88,7 @@ class ActivatedAccount(Exception):
 
 class InvalidEmailAddress(Exception):
     """Raised when the email address is invalid."""
-    
+
 
 class EmptyImageFile(Exception):
     """Raised when no image file is given."""
@@ -96,4 +96,3 @@ class EmptyImageFile(Exception):
 
 class IllegalFileType(Exception):
     """Raised when an illegal file type is uploaded."""
-    
