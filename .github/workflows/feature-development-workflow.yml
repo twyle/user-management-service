@@ -85,7 +85,8 @@ jobs:
 
     - name: Create the test tables
       run: |
-        python manage.py create_db
+        flask db migrate -m "initial migration"
+        flask db upgrade
 
     - name: Test with pytest
       run: |
