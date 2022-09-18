@@ -61,7 +61,7 @@ jobs:
   #   - name: Create the Test Environment variables
   #     run: |
   #       touch .env
-  #       echo FLASK_DEBUG=${{secrets.FLASK_APP}} >> .env
+  #       echo FLASK_DEBUG=${{secrets.FLASK_DEBUG}} >> .env
   #       echo FLASK_APP=${{secrets.FLASK_APP}} >> .env
   #       echo FLASK_ENV=${{secrets.FLASK_ENV}} >> .env
   #       echo SECRET_KEY=${{secrets.SECRET_KEY}} >> .env
@@ -145,7 +145,7 @@ jobs:
     - name: Create the Development Environment variables
       run: |
         touch .env
-        echo FLASK_DEBUG=${{secrets.FLASK_APP}} >> .env
+        echo FLASK_DEBUG=${{secrets.FLASK_DEBUG}} >> .env
         echo FLASK_APP=${{secrets.FLASK_APP}} >> .env
         echo FLASK_ENV=${{secrets.FLASK_ENV}} >> .env
         echo SECRET_KEY=${{secrets.SECRET_KEY}} >> .env
@@ -167,13 +167,13 @@ jobs:
         echo AWS_ACCESS_SECRET=${{secrets.AWS_ACCESS_SECRET}} >> .env
         echo S3_BUCKET=${{secrets.S3_BUCKET}} >> .env
 
-    # - name: Create the development tables
-    #   run: |
-    #     python manage.py create_db
+    - name: Create the development tables
+      run: |
+        python manage.py create_db
 
     - name: Test application
       run: |
-        
+        python manage.py seed_db
         python manage.py run &
         sleep 5
         curl http://127.0.0.1:5000/
