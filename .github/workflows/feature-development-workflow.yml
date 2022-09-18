@@ -167,13 +167,13 @@ jobs:
         echo AWS_ACCESS_SECRET=${{secrets.AWS_ACCESS_SECRET}} >> .env
         echo S3_BUCKET=${{secrets.S3_BUCKET}} >> .env
 
-    - name: Create the development tables
-      run: |
-        python manage.py create_db
+    # - name: Create the development tables
+    #   run: |
+    #     python manage.py create_db
 
     - name: Test application
       run: |
-        python manage.py seed_db
+        # python manage.py seed_db
         python manage.py run &
         sleep 5
         curl http://127.0.0.1:5000/
