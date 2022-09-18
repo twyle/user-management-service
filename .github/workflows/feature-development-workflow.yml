@@ -83,10 +83,9 @@ jobs:
         echo AWS_ACCESS_SECRET=${{secrets.AWS_ACCESS_SECRET}} >> .env
         echo S3_BUCKET=${{secrets.S3_BUCKET}} >> .env
 
-    - name: Create the test tables
-      run: |
-        flask db migrate -m "initial migration"
-        flask db upgrade
+    # - name: Create the test tables
+    #   run: |
+    #     python manage.py create_db
 
     - name: Test with pytest
       run: |
