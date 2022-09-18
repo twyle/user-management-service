@@ -6,23 +6,11 @@ produces:
 security:
   - APIKeyHeader: [ 'Authorization' ]
 parameters:
-  - name: body
-    description: The body should contain the User Logout data
-    in: body
+  - in: query
+    description: The query should contain the user id
     required: true
-    schema:
-      type: object
-      required:
-        - "email"
-        - "password"
-      properties:
-        email:
-          type: "email"
-          example: "lyle@gmail.com"
-        password:
-          type: "string"
-          format: password
-          example: "********"
+    name: 'id'
+    type: 'string'
 responses:
   201:
     description: When a user succesfully logs out.

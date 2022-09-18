@@ -1,36 +1,63 @@
-from flask import Blueprint, jsonify
-from ..user.models import User, user_schema, users_schema, profile_schema, auth_schema
+from flask import Blueprint, jsonify, request
 from flasgger import swag_from
+from .helpers import (
+    handle_create_user,
+    handle_log_in_user,
+    handle_reset_password,
+    handle_refresh_token,
+    handle_logout_user,
+    handle_email_confirm_request,
+)
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 
-auth = Blueprint('auth', __name__)
+auth = Blueprint("auth", __name__)
 
 
-@auth.route('/register', methods=['POST'])
-@swag_from("./docs/register_user.yml", endpoint='auth.register', methods=['POST'])
+@auth.route("/register", methods=["POST"])
+@swag_from("./docs/register_user.yml", endpoint="auth.register", methods=["POST"])
 def register():
-    return jsonify({'Hello': 'From the register route!'}), 200
+    """Create a new User."""
+    return handle_create_user(request.form, request.files)
 
 
-@auth.route('/login', methods=['POST'])
-@swag_from("./docs/login_user.yml", endpoint='auth.login', methods=['POST'])
+@auth.route("/confirm_email", methods=["GET"])
+@swag_from("./docs/confirm.yml", endpoint="auth.confirm_email", methods=["GET"])
+def confirm_email():
+    """Handle email confirmation."""
+    return handle_email_confirm_request(
+        request.args.get("id"), request.args.get("token")
+    )
+
+
+@auth.route("/login", methods=["POST"])
+@swag_from("./docs/login_user.yml", endpoint="auth.login", methods=["POST"])
 def login():
-    return jsonify({'Hello': 'From the login route!'}), 200
+    return handle_log_in_user(request.args.get("id"), request.json)
 
 
-@auth.route('/confirm', methods=['GET'])
-@swag_from("./docs/confirm_user.yml", endpoint='auth.confirm', methods=['GET'])
-def confirm():
-    return jsonify({'Hello': 'From the confirm route!'}), 200
-
-
-@auth.route('/logout', methods=['POST'])
-@swag_from("./docs/logout_user.yml", endpoint='auth.logout', methods=['POST'])
+@auth.route("/logout", methods=["POST"])
+@jwt_required()
+@swag_from("./docs/logout_user.yml", endpoint="auth.logout", methods=["POST"])
 def logout():
-    return jsonify({'Hello': 'From the logout route!'}), 200
+    # nullify the access token
+    return handle_logout_user(request.args.get("id"))
 
 
-@auth.route('/refresh', methods=['POST'])
-@swag_from("./docs/refresh_token.yml", endpoint='auth.refresh', methods=['POST'])
+@auth.route("/refresh_token", methods=["POST"])
+@jwt_required(refresh=True)
+@swag_from("./docs/refresh_token.yml", endpoint="auth.refresh", methods=["POST"])
 def refresh():
-    return jsonify({'Hello': 'From the refresh-token route!'}), 200
+    """Generate a refresh token."""
+    return handle_refresh_token(get_jwt_identity())
+
+
+@auth.route("/reset_password", methods=["POST"])
+@jwt_required()
+@swag_from(
+    "./docs/password_reset.yml", endpoint="auth.reset_password", methods=["POST"]
+)
+def reset_password():
+    return handle_reset_password(
+        request.args.get("id"), request.args.get("token"), request.json
+    )
