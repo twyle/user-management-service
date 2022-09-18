@@ -92,7 +92,7 @@ jobs:
 
     - name: Pytest Coverage
       run: |
-        if [ -d tests ] || [ -d test ]; then coverage run -m pytest; fi
+        if [ -d tests ] || [ -d test ]; then coverage run -m pytest --disable-pytest-warnings; fi
         if [ -d tests ] || [ -d test ]; then coverage report -m; fi
 
     - name: Coverage Report
