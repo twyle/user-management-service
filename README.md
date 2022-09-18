@@ -34,7 +34,7 @@ It's pretty easy to use the application. On the home page (http://localhost:5000
  3. Access all the sites functionality.
 
  <p align=center>
-  <img src="assets/videos/user-management-service-v2.gif" />
+  <img src="assets/videos/user-management-service-v3.gif" />
 </p>
 
  ## Features
