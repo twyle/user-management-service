@@ -1,13 +1,13 @@
 from .models import User, user_schema, users_schema
 from ..extensions import db
 from flask import jsonify, current_app
+from ..tasks import delete_file_s3
 from ..helpers.blueprint_helpers import (
     is_email_address_format_valid,
     check_if_user_exists,
     is_user_name_valid,
     handle_upload_image,
     check_if_user_with_id_exists,
-    delete_file_s3,
 )
 from ..exceptions import (
     EmptyUserData,

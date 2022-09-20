@@ -7,6 +7,7 @@ from ..helpers.blueprint_helpers import (
     check_if_user_with_id_exists,
 )
 from .models import EmailMessage
+from ..tasks import celery_send_email
 
 
 def send_confirm_email(user_id: str, email_data: dict) -> dict:
@@ -40,9 +41,11 @@ def send_confirm_email(user_id: str, email_data: dict) -> dict:
     if check_if_user_active(int(user_id)):
         raise ActivatedAccount("This account has alreadybeen activated!")
 
-    return handle_send_email(
+    task = celery_send_email.delay(
         email_data["email"], "Confirm Account", "auth.confirm_email"
     )
+    
+    return jsonify({"task_id": task.id, "Confirm Account email sent to": email_data["email"]}), 202
 
 
 def handle_send_confirm_email(user_id: str, email_data: dict) -> dict:
@@ -69,19 +72,6 @@ def check_if_user_with_email_exists(user_email: int) -> bool:
         return True
 
     return False
-
-
-def handle_send_email(
-    email_address: str, email_title: str, api_email_link: str
-) -> dict:
-    """Send the reset email."""
-    email_message = EmailMessage(
-        email_title=email_title,
-        api_email_link=api_email_link,
-        email_address=email_address,
-    )
-
-    return email_message.send_message()
 
 
 def check_if_user_active(id: int) -> bool:
@@ -123,16 +113,19 @@ def send_password_reset_email(id: str, email_data: dict) -> dict:
     if not check_if_user_active(int(id)):
         raise UnActivatedAccount("You cannot change password for unactivated account!")
 
-    return handle_send_email(
+    
+    task = celery_send_email.delay(
         email_data["email"], "Password Reset", "auth.reset_password"
     )
+    
+    return jsonify({"task_id": task.id, "Password Reset Email sent to": email_data["email"]}), 202
 
 
 def handle_send_reset_password_email(id: str, email_data: dict) -> dict:
     """Handle request to send reset password email"""
     try:
         email_sent = send_password_reset_email(id, email_data)
-    except (ValueError, UserDoesNotExist) as e:
+    except (ValueError, UserDoesNotExist, UnActivatedAccount) as e:
         return jsonify({"error": str(e)})
     else:
         return email_sent

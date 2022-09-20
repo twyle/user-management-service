@@ -46,3 +46,5 @@ SQLAlchemy==1.4.41
 urllib3==1.26.12
 Werkzeug==2.2.2
 zipp==3.8.1
+celery==5.2.7
+Redis==4.3.4

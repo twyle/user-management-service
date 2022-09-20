@@ -1,5 +1,5 @@
 from ..extensions import url_serializer, mail
-from flask import url_for, jsonify
+from flask import url_for, jsonify, current_app
 from flask_mail import Message
 
 
@@ -39,12 +39,7 @@ class EmailMessage:
     def send_message(self):
         """Send the email"""
         mail.send(self.message)
-        return (
-            jsonify(
-                {
-                    f"{self.email_title} email sent to": self.email_address,
-                    "token": self.token,
-                }
-            ),
-            200,
-        )
+        return {
+            f"{self.email_title} email sent to": self.email_address,
+            "token": self.token,
+        }

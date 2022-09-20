@@ -3,11 +3,14 @@ from api import create_app
 from flask.cli import FlaskGroup
 from dotenv import load_dotenv
 from api.helpers.helpers import seed_db_, create_db_
+from api.extensions import celery, init_celery
 
 load_dotenv()
 
 app = create_app()
 cli = FlaskGroup(create_app=create_app)
+
+init_celery(celery, app)
 
 
 @cli.command("create_db")

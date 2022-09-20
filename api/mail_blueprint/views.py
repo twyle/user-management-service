@@ -1,9 +1,21 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from .helpers import handle_send_confirm_email, handle_send_reset_password_email
 from flasgger import swag_from
+from celery.result import AsyncResult
 
 
 mail = Blueprint("mail", __name__)
+
+
+@mail.route("/tasks/<task_id>", methods=["GET"])
+def get_status(task_id):
+    task_result = AsyncResult(task_id)
+    result = {
+        "task_id": task_id,
+        "task_status": task_result.status,
+        "task_result": task_result.result
+    }
+    return jsonify(result), 200
 
 
 @mail.route("/send_confirm_email", methods=["POST"])

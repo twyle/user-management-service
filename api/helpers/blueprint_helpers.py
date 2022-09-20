@@ -1,5 +1,4 @@
 from ..user.models import User
-from ..extensions import db, s3
 import re
 from ..exceptions import (
     MissingPasswordData,
@@ -15,6 +14,7 @@ from ..exceptions import (
 from flask import current_app
 from os import path
 from werkzeug.utils import secure_filename
+from ..tasks import upload_file_to_s3
 
 
 def check_if_user_with_id_exists(user_id: int) -> bool:
@@ -55,30 +55,6 @@ def check_if_email_id_match(email: str, id: int) -> bool:
     return False
 
 
-def delete_file_s3(filename):
-    """Delete profile pic"""
-    print(path.basename(filename))
-    s3.delete_object(
-        Bucket=current_app.config["S3_BUCKET"], Key=path.basename(filename)
-    )
-
-
-def upload_file_to_s3(file_path, bucket_name):
-    """
-    Docs: http://boto3.readthedocs.io/en/latest/guide/s3.html
-    """
-    with open(file_path, "rb") as file:
-        try:
-            s3.upload_fileobj(file, bucket_name, path.basename(file.name))
-        except Exception as e:
-            raise e
-        else:
-            data = "{}{}".format(
-                current_app.config["S3_LOCATION"], path.basename(file.name)
-            )
-            return data
-
-
 def allowed_file(filename: str) -> bool:
     """Check if the file is allowed."""
     allowed_extensions = current_app.config["ALLOWED_EXTENSIONS"]
@@ -105,7 +81,11 @@ def upload_image(file):
 
     file_path = save_file(file)
 
-    profile_pic = upload_file_to_s3(file_path, current_app.config["S3_BUCKET"])
+    task = upload_file_to_s3.delay(file_path, current_app.config["S3_BUCKET"])
+    
+    profile_pic = "{}{}".format(
+                current_app.config["S3_LOCATION"], path.basename(file_path)
+            )
 
     return profile_pic
 

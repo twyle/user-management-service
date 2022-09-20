@@ -1,10 +1,31 @@
 version: '3'
+
 services:
   user-management-service:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    volumes:
+      - .:/usr/src/app
     ports:
       - 5000:5000
     env_file:
       - ./.env
+    depends_on:
+      - redis
+
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: celery --app manage.celery worker --loglevel=info
+    volumes:
+      - .:/usr/src/app
+    env_file:
+      - ./.env
+    depends_on:
+      - user-management-service
+      - redis
+
+  redis:
+    image: redis:6-alpine

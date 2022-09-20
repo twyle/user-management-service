@@ -7,6 +7,7 @@ from flasgger import LazyJSONEncoder
 from .mail_blueprint.views import mail as mail_blueprint
 
 
+
 def create_app(script_info=None):
     """Create the flask app."""
 
@@ -30,7 +31,7 @@ def create_app(script_info=None):
     cors.init_app(app)
     jwt.init_app(app)
     mail.init_app(app)
-    bcrypt.init_app(app)
+    bcrypt.init_app(app)   
 
     app.register_blueprint(user, url_prefix="/api/v1/user")
     app.register_blueprint(auth, url_prefix="/api/v1/auth")
