@@ -57,8 +57,12 @@ def handle_delete_user(user_id: int):
 
 def handle_get_all_users():
     """List all users."""
-    all_users = User.query.all()
-    return users_schema.dump(all_users), 200
+    try:
+        all_users = User.query.all()
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    else:
+        return users_schema.dump(all_users), 200
 
 
 def get_user(user_id: int) -> dict:

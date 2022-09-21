@@ -48,3 +48,5 @@ Werkzeug==2.2.2
 zipp==3.8.1
 celery==5.2.7
 Redis==4.3.4
+pillow==9.2.0
+numpy==1.23.3

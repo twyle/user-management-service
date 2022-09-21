@@ -97,12 +97,13 @@ def create_new_user(user_data: dict, profile_pic_data) -> dict:  # pylint: disab
         password=user_data["Password"],
     )
 
-    if profile_pic_data["Profile Picture"]:
-        profile_pic = handle_upload_image(profile_pic_data["Profile Picture"])   
-        user.profile_pic = profile_pic
+    if profile_pic_data:
+        if profile_pic_data["Profile Picture"]:
+            profile_pic = handle_upload_image(profile_pic_data["Profile Picture"])   
+            user.profile_pic = profile_pic
 
-    # db.session.add(user)
-    # db.session.commit()
+    db.session.add(user)
+    db.session.commit()
 
     return user_schema.dumps(user)
 

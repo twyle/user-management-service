@@ -1,15 +1,21 @@
 from .extensions import celery, s3
 from .mail_blueprint.models import EmailMessage
-from flask import current_app
+from flask import current_app, jsonify
 from os import path
+from PIL import Image
+import io
+import base64
+import numpy as np
+import json
 
 
 @celery.task(name="send_email")
 def celery_send_email(
-    email_address: str, email_title: str, api_email_link: str
+    id: str, email_address: str, email_title: str, api_email_link: str
 ) -> dict:
     """Send the reset email."""
     email_message = EmailMessage(
+        user_id = id,
         email_title=email_title,
         api_email_link=api_email_link,
         email_address=email_address, 
@@ -27,17 +33,16 @@ def delete_file_s3(filename):
 
 
 @celery.task(name="upload_image")
-def upload_file_to_s3(file_path, bucket_name):
-    """
-    Docs: http://boto3.readthedocs.io/en/latest/guide/s3.html
-    """
-    with open(file_path, "rb") as file:
-        try:
-            s3.upload_fileobj(file, bucket_name, path.basename(file.name))
-        except Exception as e:
-            raise e 
-        else:
-            data = "{}{}".format(
-                current_app.config["S3_LOCATION"], path.basename(file.name)
-            )
-            return {'image': data}
+def upload_file_to_s3(json_data, filename, bucket_name):
+    img = Image.fromarray(np.array(json.loads(json_data), dtype='uint8'))
+    in_mem_file = io.BytesIO()
+    img.save(in_mem_file, format='png')
+    in_mem_file.seek(0)
+    
+    s3.upload_fileobj(in_mem_file, bucket_name, filename)
+
+    data = "{}{}".format(
+        
+        current_app.config["S3_LOCATION"], filename
+    )
+    return {'image': data}

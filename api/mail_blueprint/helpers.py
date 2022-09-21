@@ -42,7 +42,7 @@ def send_confirm_email(user_id: str, email_data: dict) -> dict:
         raise ActivatedAccount("This account has alreadybeen activated!")
 
     task = celery_send_email.delay(
-        email_data["email"], "Confirm Account", "auth.confirm_email"
+        user_id, email_data["email"], "Confirm Account", "auth.confirm_email"
     )
     
     return jsonify({"task_id": task.id, "Confirm Account email sent to": email_data["email"]}), 202
@@ -115,7 +115,7 @@ def send_password_reset_email(id: str, email_data: dict) -> dict:
 
     
     task = celery_send_email.delay(
-        email_data["email"], "Password Reset", "auth.reset_password"
+        id, email_data["email"], "Password Reset", "auth.reset_password"
     )
     
     return jsonify({"task_id": task.id, "Password Reset Email sent to": email_data["email"]}), 202

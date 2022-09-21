@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
 from .helpers import (
     handle_delete_user,
     handle_get_all_users,

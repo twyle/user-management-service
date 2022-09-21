@@ -15,6 +15,11 @@ from flask import current_app
 from os import path
 from werkzeug.utils import secure_filename
 from ..tasks import upload_file_to_s3
+from PIL import Image
+import io
+import base64
+import numpy as np
+import json
 
 
 def check_if_user_with_id_exists(user_id: int) -> bool:
@@ -61,15 +66,6 @@ def allowed_file(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1].lower() in allowed_extensions
 
 
-def save_file(file):
-    """Saves the file locally"""
-    filename = secure_filename(file.filename)
-    file.save(path.join(current_app.config["UPLOAD_FOLDER"], filename))
-    file_path = path.join(current_app.config["UPLOAD_FOLDER"], filename)
-
-    return file_path
-
-
 def upload_image(file):
     """Uploads image to S3"""
     if not file:
@@ -78,15 +74,19 @@ def upload_image(file):
         raise EmptyImageFile("The file has to be provided!")
     if not allowed_file(file.filename):
         raise IllegalFileType("That file type is not allowed!")
-
-    file_path = save_file(file)
-
-    task = upload_file_to_s3.delay(file_path, current_app.config["S3_BUCKET"])
     
-    profile_pic = "{}{}".format(
-                current_app.config["S3_LOCATION"], path.basename(file_path)
-            )
+    print(file.filename)
+    
+    img = Image.open(file)
+    json_data = json.dumps(np.array(img).tolist())
 
+    task = upload_file_to_s3.delay(json_data, file.filename, current_app.config["S3_BUCKET"])
+
+    profile_pic = "{}{}".format(
+        
+        current_app.config["S3_LOCATION"], file.filename
+    )
+    
     return profile_pic
 
 
@@ -94,7 +94,6 @@ def handle_upload_image(file):
     """Handle image upload."""
     try:
         profile_pic = upload_image(file)
-        print(profile_pic)
     except (EmptyImageFile, IllegalFileType, ValueError, TypeError) as e:
         raise e
     except Exception as e:
