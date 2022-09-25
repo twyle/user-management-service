@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """This module contain the confuguration for the application."""
 import os
-from dotenv import load_dotenv
 from datetime import timedelta
+
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -36,10 +37,10 @@ class BaseConfig:
 
     JWT_SECRET_KEY = "super-secret-key"
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(
-        hours=int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES", 24))
+        hours=int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES", "24"))
     )
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(
-        days=int(os.getenv("JWT_REFRESH_TOKEN_EXPIRES", 7))
+        days=int(os.getenv("JWT_REFRESH_TOKEN_EXPIRES", "7"))
     )
 
     MAIL_USERNAME = os.environ["MAIL_USERNAME"]
@@ -52,15 +53,15 @@ class BaseConfig:
     S3_BUCKET = os.environ["S3_BUCKET"]
     AWS_ACCESS_KEY = os.environ["AWS_ACCESS_KEY"]
     AWS_ACCESS_SECRET = os.environ["AWS_ACCESS_SECRET"]
-    S3_LOCATION = "http://{}.s3.amazonaws.com/".format(S3_BUCKET)
+    S3_LOCATION = f"http://{S3_BUCKET}.s3.amazonaws.com/"
 
     BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-    UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploaded-images')
+    UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploaded-images")
     ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
-    
-    SERVER_NAME = os.environ['SERVER_NAME']
-    PREFERRED_URL_SCHEME= os.environ['PREFERRED_URL_SCHEME']
+
+    SERVER_NAME = os.environ["SERVER_NAME"]
+    PREFERRED_URL_SCHEME = os.environ["PREFERRED_URL_SCHEME"]
 
 
 class DevelopmentConfig(BaseConfig):

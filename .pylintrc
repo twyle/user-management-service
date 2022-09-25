@@ -102,7 +102,10 @@ disable=
     # We anticipate #3512 where it will become optional
     fixme,
     import-error,
-
+    redefined-builtin,
+    redefined-outer-name,
+    relative-beyond-top-level,
+    inconsistent-return-statements
 
 [REPORTS]
 

@@ -1,10 +1,13 @@
+# -*- coding: utf-8 -*-
+"""Declare helper functions for the application."""
 import os
-from ..user.models import User
+
 from ..extensions import db
 
 
 def set_flask_environment(app) -> str:
     """Set the flask development environment.
+
     Parameters
     ----------
     app: flask.Flask
@@ -33,25 +36,6 @@ def set_flask_environment(app) -> str:
         return "development"
 
     return os.environ["FLASK_ENV"]
-
-
-def seed_db_():
-    """Creates two users and on admin."""
-
-    lyle_user = User(
-        email="lyleuser@gmail.com", password="Lyleuser@123", name="lyleuser"
-    )
-
-    lyle_user1 = User(
-        email="lyleuser1@gmail.com", password="Lyleuse1r@123", name="lyleuser1"
-    )
-
-    lyle_admin = User(
-        email="lyleadmin@gmail.com", password="Lyleadmin@123", name="lyleadmin"
-    )
-
-    db.session.add_all([lyle_user, lyle_user1, lyle_admin])
-    db.session.commit()
 
 
 def create_db_():

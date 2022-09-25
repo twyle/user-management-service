@@ -1,17 +1,19 @@
+# -*- coding: utf-8 -*-
+"""Declare methods used to send emails."""
 from flask import jsonify
-from ..user.models import User
-from ..exceptions import UnActivatedAccount, UserDoesNotExist, ActivatedAccount
+
+from ..exceptions import ActivatedAccount, UnActivatedAccount, UserDoesNotExist
 from ..helpers.blueprint_helpers import (
-    is_email_address_format_valid,
     check_if_email_id_match,
     check_if_user_with_id_exists,
+    is_email_address_format_valid,
 )
-from .models import EmailMessage
 from ..tasks import celery_send_email
+from ..user.models import User
 
 
 def send_confirm_email(user_id: str, email_data: dict) -> dict:
-    """Send account confirmation email"""
+    """Send account confirmation email."""
     if not user_id:
         raise ValueError("The user id must be provided")
     if not isinstance(user_id, str):
@@ -44,8 +46,13 @@ def send_confirm_email(user_id: str, email_data: dict) -> dict:
     task = celery_send_email.delay(
         user_id, email_data["email"], "Confirm Account", "auth.confirm_email"
     )
-    
-    return jsonify({"task_id": task.id, "Confirm Account email sent to": email_data["email"]}), 202
+
+    return (
+        jsonify(
+            {"task_id": task.id, "Confirm Account email sent to": email_data["email"]}
+        ),
+        202,
+    )
 
 
 def handle_send_confirm_email(user_id: str, email_data: dict) -> dict:
@@ -75,7 +82,7 @@ def check_if_user_with_email_exists(user_email: int) -> bool:
 
 
 def check_if_user_active(id: int) -> bool:
-    """Check if account has been activated"""
+    """Check if account has been activated."""
     return User.query.filter_by(id=id).first().active
 
 
@@ -113,16 +120,20 @@ def send_password_reset_email(id: str, email_data: dict) -> dict:
     if not check_if_user_active(int(id)):
         raise UnActivatedAccount("You cannot change password for unactivated account!")
 
-    
     task = celery_send_email.delay(
         id, email_data["email"], "Password Reset", "auth.reset_password"
     )
-    
-    return jsonify({"task_id": task.id, "Password Reset Email sent to": email_data["email"]}), 202
+
+    return (
+        jsonify(
+            {"task_id": task.id, "Password Reset Email sent to": email_data["email"]}
+        ),
+        202,
+    )
 
 
 def handle_send_reset_password_email(id: str, email_data: dict) -> dict:
-    """Handle request to send reset password email"""
+    """Handle request to send reset password email."""
     try:
         email_sent = send_password_reset_email(id, email_data)
     except (ValueError, UserDoesNotExist, UnActivatedAccount) as e:

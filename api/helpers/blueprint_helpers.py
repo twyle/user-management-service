@@ -1,25 +1,26 @@
-from ..user.models import User
+# -*- coding: utf-8 -*-
+"""Declare helper functions for the blueprints."""
+import json
 import re
+
+import numpy as np
+from flask import current_app
+from PIL import Image
+from werkzeug.utils import secure_filename
+
 from ..exceptions import (
-    MissingPasswordData,
-    NonStringData,
-    PasswordTooLong,
-    PasswordTooShort,
-    PasswordNotAlphaNumeric,
-    UserNameTooLong,
-    UserNameTooShort,
     EmptyImageFile,
     IllegalFileType,
+    MissingPasswordData,
+    NonStringData,
+    PasswordNotAlphaNumeric,
+    PasswordTooLong,
+    PasswordTooShort,
+    UserNameTooLong,
+    UserNameTooShort,
 )
-from flask import current_app
-from os import path
-from werkzeug.utils import secure_filename
 from ..tasks import upload_file_to_s3
-from PIL import Image
-import io
-import base64
-import numpy as np
-import json
+from ..user.models import User
 
 
 def check_if_user_with_id_exists(user_id: int) -> bool:
@@ -39,7 +40,7 @@ def check_if_user_with_id_exists(user_id: int) -> bool:
 
 
 def check_if_email_id_match(email: str, id: int) -> bool:
-    """Check if user id and email belong to same user"""
+    """Check if user id and email belong to same user."""
     if not id:
         raise ValueError("The user id has to be provided!")
 
@@ -67,26 +68,22 @@ def allowed_file(filename: str) -> bool:
 
 
 def upload_image(file):
-    """Uploads image to S3"""
+    """Upload image to S3."""
     if not file:
         raise EmptyImageFile("The file has to be provided!")
     if file.filename == "":
         raise EmptyImageFile("The file has to be provided!")
     if not allowed_file(file.filename):
         raise IllegalFileType("That file type is not allowed!")
-    
-    print(file.filename)
-    
+
     img = Image.open(file)
     json_data = json.dumps(np.array(img).tolist())
+    filename = secure_filename(file.filename)
 
-    task = upload_file_to_s3.delay(json_data, file.filename, current_app.config["S3_BUCKET"])
+    upload_file_to_s3.delay(json_data, filename, current_app.config["S3_BUCKET"])
 
-    profile_pic = "{}{}".format(
-        
-        current_app.config["S3_LOCATION"], file.filename
-    )
-    
+    profile_pic = f"{current_app.config['S3_LOCATION']}{filename}"
+
     return profile_pic
 
 
