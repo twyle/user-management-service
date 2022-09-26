@@ -183,7 +183,6 @@ jobs:
 
     - name: Test application
       run: |
-        python manage.py seed_db
         python manage.py run &
         sleep 5
         curl http://127.0.0.1:5000/
