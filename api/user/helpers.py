@@ -1,27 +1,30 @@
-from .models import User, user_schema, users_schema
-from ..extensions import db
-from flask import jsonify, current_app
-from ..helpers.blueprint_helpers import (
-    is_email_address_format_valid,
-    check_if_user_exists,
-    is_user_name_valid,
-    handle_upload_image,
-    check_if_user_with_id_exists,
-    delete_file_s3,
-)
+# -*- coding: utf-8 -*-
+"""Declare helper functions for the user package."""
+from flask import current_app, jsonify
+
 from ..exceptions import (
-    EmptyUserData,
-    UserDoesNotExist,
-    NonDictionaryUserData,
     EmailAddressTooLong,
-    UserExists,
-    UserNameTooShort,
-    UserNameTooLong,
+    EmptyUserData,
     InvalidEmailAddressFormat,
     MissingEmailData,
-    MissingPasswordData,
     MissingNameData,
+    MissingPasswordData,
+    NonDictionaryUserData,
+    UserDoesNotExist,
+    UserExists,
+    UserNameTooLong,
+    UserNameTooShort,
 )
+from ..extensions import db
+from ..helpers.blueprint_helpers import (
+    check_if_user_exists,
+    check_if_user_with_id_exists,
+    handle_upload_image,
+    is_email_address_format_valid,
+    is_user_name_valid,
+)
+from ..tasks import delete_file_s3
+from .models import User, user_schema, users_schema
 
 
 def delete_user(user_id: str) -> dict:
@@ -57,8 +60,12 @@ def handle_delete_user(user_id: int):
 
 def handle_get_all_users():
     """List all users."""
-    all_users = User.query.all()
-    return users_schema.dump(all_users), 200
+    try:
+        all_users = User.query.all()
+    except Exception as e:  # pylint: disable=broad-except
+        return jsonify({"error": str(e)}), 400
+    else:
+        return users_schema.dump(all_users), 200
 
 
 def get_user(user_id: int) -> dict:
@@ -103,9 +110,7 @@ def check_if_user_with_name_exists(user_name: str) -> bool:
     return False
 
 
-def update_user(
-    user_id: str, user_data: dict, profile_pic_data
-) -> dict:  # pylint: disable=R0912
+def update_user(user_id: str, user_data: dict, profile_pic_data) -> dict:
     """Update the user with the given id."""
     if not user_id:
         raise EmptyUserData("The user_id has to be provided.")

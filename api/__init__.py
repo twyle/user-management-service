@@ -1,15 +1,17 @@
-from flask import Flask, jsonify
-from .user.views import user
-from .auth.views import auth
-from .extensions import cors, db, migrate, ma, swagger, jwt, mail, bcrypt
-from .helpers.helpers import set_flask_environment
+# -*- coding: utf-8 -*-
+"""Create the application."""
 from flasgger import LazyJSONEncoder
+from flask import Flask, jsonify
+
+from .auth.views import auth
+from .extensions import bcrypt, cors, db, jwt, ma, mail, migrate, swagger
+from .helpers.helpers import set_flask_environment
 from .mail_blueprint.views import mail as mail_blueprint
+from .user.views import user
 
 
-def create_app(script_info=None):
+def create_app():
     """Create the flask app."""
-
     app = Flask(__name__)
 
     set_flask_environment(app)
@@ -17,7 +19,6 @@ def create_app(script_info=None):
     @app.route("/", methods=["GET"])
     def health_check():
         """Check if the application is up."""
-
         return jsonify({"Hello": "From Flask"}), 200
 
     app.json_encoder = LazyJSONEncoder

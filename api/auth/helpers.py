@@ -1,53 +1,49 @@
 # -*- coding: utf-8 -*-
 """This module has methods that are used in the other modules in this package."""
-from ..helpers.blueprint_helpers import (
-    is_email_address_format_valid,
-    check_if_user_exists,
-    is_user_name_valid,
-    is_user_password_valid,
-    handle_upload_image,
-    check_if_email_id_match,
-    check_if_user_with_id_exists,
-)
-from os import path
 import json
-from flask import jsonify
-from flask_jwt_extended import (
-    create_access_token,
-    create_refresh_token,
-    get_jwt_identity,
-)
-from flask import current_app
-from ..user.models import User, user_schema, profile_schema
-from ..extensions import db, url_serializer
-from ..mail_blueprint.helpers import handle_send_confirm_email
-from itsdangerous import SignatureExpired, BadTimeSignature, BadSignature
+
+from flask import current_app, jsonify
+from flask_jwt_extended import create_access_token, create_refresh_token
+from itsdangerous import BadSignature, BadTimeSignature, SignatureExpired
+
 from ..exceptions import (
-    EmptyUserData,
-    NonDictionaryUserData,
-    MissingEmailKey,
-    MissingNameKey,
-    MissingPasswordKey,
     EmailAddressTooLong,
+    EmptyImageFile,
+    EmptyUserData,
+    IllegalFileType,
+    InvalidEmailAddress,
     InvalidEmailAddressFormat,
-    UserExists,
+    InvalidPassword,
     MissingEmailData,
+    MissingEmailKey,
     MissingNameData,
+    MissingNameKey,
+    MissingPasswordData,
+    MissingPasswordKey,
+    NonDictionaryUserData,
     PasswordNotAlphaNumeric,
     PasswordTooLong,
-    MissingPasswordData,
-    UserNameTooShort,
-    UserNameTooLong,
-    UserDoesNotExist,
-    InvalidPassword,
     UnActivatedAccount,
-    InvalidEmailAddress,
-    EmptyImageFile,
-    IllegalFileType,
+    UserDoesNotExist,
+    UserExists,
+    UserNameTooLong,
+    UserNameTooShort,
 )
+from ..extensions import db, url_serializer
+from ..helpers.blueprint_helpers import (
+    check_if_email_id_match,
+    check_if_user_exists,
+    check_if_user_with_id_exists,
+    handle_upload_image,
+    is_email_address_format_valid,
+    is_user_name_valid,
+    is_user_password_valid,
+)
+from ..mail_blueprint.helpers import handle_send_confirm_email
+from ..user.models import User, profile_schema, user_schema
 
 
-def create_new_user(user_data: dict, profile_pic_data) -> dict:  # pylint: disable=R0912
+def create_new_user(user_data: dict, profile_pic_data) -> dict:
     """Create a new user."""
     if not user_data:
         raise EmptyUserData("The user data cannot be empty.")
@@ -97,9 +93,10 @@ def create_new_user(user_data: dict, profile_pic_data) -> dict:  # pylint: disab
         password=user_data["Password"],
     )
 
-    if profile_pic_data["Profile Picture"]:
-        profile_pic = handle_upload_image(profile_pic_data["Profile Picture"])
-        user.profile_pic = profile_pic
+    if profile_pic_data:
+        if profile_pic_data["Profile Picture"]:
+            profile_pic = handle_upload_image(profile_pic_data["Profile Picture"])
+            user.profile_pic = profile_pic
 
     db.session.add(user)
     db.session.commit()
@@ -144,7 +141,7 @@ def activate_account(email: str):
 
 
 def confirm_email(user_id: str, token: str) -> dict:
-    """Confrim user account"""
+    """Confrim user account."""
     if not user_id:
         raise ValueError("The user id has to be provided!")
     if not isinstance(user_id, str):
@@ -233,7 +230,7 @@ def log_in_user(user_id: str, user_data: dict):
 
 
 def handle_unactivated_account(email: str) -> dict:
-    """Sends activation email."""
+    """Send activation email."""
     return handle_send_confirm_email(email)
 
 
@@ -260,7 +257,7 @@ def handle_log_in_user(user_id: str, user_data: dict) -> dict:
 
 
 def logout_user(user_id: str) -> dict:
-    """Log out a user"""
+    """Log out a user."""
     if not user_id:
         raise ValueError("The user id must be provided!")
     if not isinstance(user_id, str):
@@ -272,7 +269,7 @@ def logout_user(user_id: str) -> dict:
 
 
 def handle_logout_user(user_id: str) -> dict:
-    """Log out a logged in user"""
+    """Log out a logged in user."""
     try:
         log_out_data = logout_user(user_id)
     except (ValueError, TypeError, UserDoesNotExist) as e:
@@ -282,15 +279,14 @@ def handle_logout_user(user_id: str) -> dict:
 
 
 def update_password(email: str, password: str):
-    """Updates the user password."""
+    """Update the user password."""
     print("got here")
     if check_if_user_exists(email):
         user = User.query.filter_by(email=email).first()
         user.password = password
         db.session.commit()
         return jsonify({"Success": f"Password reset for {email}"}), 200
-    else:
-        raise InvalidEmailAddress(f"The user with the email {email} does not exist!")
+    raise InvalidEmailAddress(f"The user with the email {email} does not exist!")
 
 
 def get_user_email(token: str) -> dict:
@@ -310,7 +306,7 @@ def get_user_email(token: str) -> dict:
 def reset_user_password(
     user_id: str, activation_token: str, user_passwrd: dict
 ) -> dict:
-    """Reset the user password"""
+    """Reset the user password."""
     if not user_id:
         raise ValueError("The user id has to be provided")
     if not isinstance(user_id, str):
